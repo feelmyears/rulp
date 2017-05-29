@@ -1,4 +1,5 @@
 use super::*;
+use lp::{Lp, Optimization};
 use rulinalg::matrix::Matrix;
 
 impl SolverBase for SimplexSolver {
@@ -15,15 +16,15 @@ impl SolverBase for SimplexSolver {
 }
 
 impl SimplexSolver {
-	fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
+	pub fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
 		// add [1 c 0]
 		let mut mat_builder: Vec<f64> = vec![1.];
 		for opt_coeff in &lp.c {
-			match &lp.optimization {
-				Min => {
+			match lp.optimization {
+				Optimization::Min => {
 					mat_builder.push(-1. * opt_coeff);
 				},
-				Max => {
+				Optimization::Max => {
 					mat_builder.push(*opt_coeff);
 				},
 			}
@@ -42,10 +43,11 @@ impl SimplexSolver {
 		return Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder);
 	}
 }
-
+/*
 #[cfg(test)]
 mod solver_tests {
 	use super::*;
+	//use SimplexSolver::convert_lp_to_tableau;
 
 	#[test]
 	fn to_tableau_test () {
@@ -63,8 +65,6 @@ mod solver_tests {
 			c: c,
 			optimization: Optimization::Max,
 		};
-		assert_matrix_eq!(convert_lp_to_tableau(lp), expected);
+		assert_matrix_eq!(SimplexSolver::convert_lp_to_tableau(&lp), expected);
 	}
-
-	
-}
+}*/
