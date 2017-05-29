@@ -65,4 +65,6 @@ mod solver_tests {
 		};
 		assert_matrix_eq!(convert_lp_to_tableau(lp), expected);
 	}
+
+	
 }

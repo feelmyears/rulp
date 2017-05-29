@@ -6,9 +6,7 @@ mod impl_builder;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Variable {
 	pub name: String,
-	pub coefficient: f64,
-	pub upper_bound: Option<f64>,
-	pub lower_bound: Option<f64>
+	pub coefficient: f64
 }
 
 #[derive(Debug, PartialEq, Clone)]
