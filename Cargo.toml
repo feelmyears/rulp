@@ -1,0 +1,8 @@
+[package]
+name = "rulp"
+version = "0.1.0"
+authors = ["feelmyears <philipmeyers2017@u.northwestern.edu>"]
+
+[dependencies]
+rulinalg="0.4.2"
+regex = "0.2"

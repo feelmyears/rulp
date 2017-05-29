@@ -1,0 +1,249 @@
+use lp::{Lp, Optimization};
+use rulinalg::matrix::Matrix;
+use super::{Builder, Variable, Constraint, Objective, Relation, HashSet, HashMap};
+
+impl Builder {
+	pub fn new() -> Self {
+		Self {
+			variables: HashSet::new(),
+			variable_indices: HashMap::new(),
+			constraints: vec![],
+			objective: None,
+		}
+	}
+
+	pub fn add_variable(&mut self, name: &str) {
+		if !(self.variables.contains(name)) {
+			let num_variables = self.variables.len();
+			self.variable_indices.insert(name.to_string(), num_variables);
+			self.variables.insert(name.to_string());
+		}
+	}
+
+	pub fn add_constraint(&mut self, constraint: Constraint) {
+		self.verify_constraint(&constraint);
+		self.constraints.push(constraint);
+	}
+
+	pub fn add_objective(&mut self, objective: Constraint) {
+		self.verify_constraint(&objective);
+
+		match objective.relation {
+			Relation::LessThanOrEqual => (),
+			Relation::GreaterThanOrEqual => (),
+			_ => panic!("Invalid objective form provided. Must be either LessThanOrEqual (minimization) or GreaterThanOrEqual (maximization)!")
+		};
+
+		let curr_objective = self.objective.take();
+		match curr_objective {
+			Some(objective) => {
+				panic!("Attempting to add a second objective!");
+			},
+			None => {
+				self.objective = Some(objective);
+			}
+		}
+	}
+
+	pub fn generate_lp(&mut self) -> Lp {
+		self.convert_to_standard_form();
+		let num_variables = self.variables.len();
+		let num_constraints = self.constraints.len();
+		let A = self.generate_A();
+		let b = self.generate_b();
+		let (c, opt) = self.generate_c();
+
+		Lp {
+			A: A,
+			b: b,
+			c: c,
+			optimization: opt
+		}
+	}
+
+	fn generate_A(&self) -> Matrix<f64> {
+		let num_variables = self.variables.len();
+		let num_constraints = self.constraints.len();
+		let mut A = vec![0.; num_constraints * num_variables];
+
+		for row in 0 .. num_constraints {
+			let constraint = &self.constraints[row];
+			for ref var in &constraint.variables {
+				let index = row * num_variables + self.variable_indices[&var.name];
+				A[index] = var.coefficient;
+			}
+		}
+
+		Matrix::new(num_constraints, num_variables, A)
+	}
+
+	fn generate_b(&self) -> Vec<f64> {
+		let num_constraints = self.constraints.len();			
+		let mut b = Vec::with_capacity(num_constraints);
+
+		for row in 0 .. num_constraints {
+			let constraint = &self.constraints[row];
+			b.push(constraint.constant);
+		}
+
+		b
+
+	}
+
+	fn generate_c(&self) -> (Vec<f64>, Optimization) {
+		let num_variables = self.variables.len();
+		let mut c = vec![0.; num_variables + 1];
+
+		let opt = match self.objective {
+			None => {
+				panic!("No objective function!");
+			},
+			Some(ref obj) => {
+				for ref var in &obj.variables {
+					c[self.variable_indices[&var.name]] = var.coefficient;
+				}
+				c[num_variables] = obj.constant;
+
+				match obj.relation {
+					Relation::LessThanOrEqual => Optimization::Min,
+					_ 				=> Optimization::Max
+				}
+			}
+		};
+
+		(c, opt)
+	}
+
+
+	fn verify_constraint(&self, constraint: &Constraint) {
+		for ref var in &constraint.variables {
+			if !self.variables.contains(&var.name) {
+				panic!("Attempted to add constraint for unknown variable: {}", var.name);
+			}
+		}
+	}
+
+	fn convert_to_standard_form(&mut self) {
+		let mut needs_slack = vec![];
+		let mut needs_excess = vec![];
+
+		for i in 0 .. self.constraints.len() {
+			match self.constraints[i].relation {
+			    Relation::Equal => {},
+				Relation::LessThanOrEqual => {
+					needs_slack.push(i);
+				},
+				Relation::GreaterThanOrEqual => {
+					needs_excess.push(i);
+				}
+			}
+		}
+
+		self.add_slack_variables(needs_slack);
+		self.add_excess_variables(needs_excess);
+	}
+
+	fn add_slack_variables(&mut self, constraints: Vec<usize>) {
+		let mut slack_ct = 0;
+		let mut vars_to_add = vec![];
+
+		for i in constraints {
+			let ref mut constraint = self.constraints[i];
+
+			let slack = format!("slack_{}", slack_ct);
+			slack_ct += 1;
+
+			vars_to_add.push(slack.clone());
+			constraint.variables.push(Variable {
+				name: slack,
+				coefficient: 1.,
+				upper_bound: None,
+				lower_bound: Some(0.)
+			});
+			constraint.relation = Relation::Equal;
+		}
+
+		for v in vars_to_add {
+			self.add_variable(&v);
+		}
+	}
+
+	fn add_excess_variables(&mut self, constraints: Vec<usize>) {
+		let mut excess_ct = 0;
+		let mut vars_to_add = vec![];
+
+		for i in constraints {
+			let ref mut constraint = self.constraints[i];
+
+			let excess = format!("excess_{}", excess_ct);
+			excess_ct += 1;
+
+			vars_to_add.push(excess.clone());
+			constraint.variables.push(Variable {
+				name: excess,
+				coefficient: -1.,
+				upper_bound: None,
+				lower_bound: Some(0.)
+			});
+			constraint.relation = Relation::Equal;
+		}
+
+		for v in vars_to_add {
+			self.add_variable(&v);
+		}
+	}
+}
+
+#[cfg(test)]
+mod builder_tests {
+	use super::*;
+
+	#[test]
+	fn generate_lp_test() {
+		let mut lpb = LPBuilder::new();
+
+		let var_names = vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()];
+		let constraints = vec![
+			gen_constraint(vec![("a".to_string(), 2.), ("b".to_string(), -5.)], 10., LessThanOrEqual),
+			gen_constraint(vec![("c".to_string(), -3.), ("d".to_string(), -5.)], 15., GreaterThanOrEqual),
+			gen_constraint(vec![("a".to_string(), 1.), ("b".to_string(), 1.), ("c".to_string(), 1.)], 33., Equal),
+		];
+
+		let objective = gen_constraint(vec![("a".to_string(), 1.), ("b".to_string(), 2.), ("c".to_string(), 3.), ("d".to_string(), 4.)], 0., LessThanOrEqual);
+
+		for v in var_names {
+			lpb.add_variable(&v);
+		}
+
+		for c in constraints {
+			lpb.add_constraint(c);
+		}
+
+
+		lpb.add_objective(objective);
+
+		let lp = lpb.generate_lp();
+
+		let expected_A = matrix![
+			2.0,  -5.0,   0.0,   0.0,   1.0,   0.0;
+  			0.0,   0.0,  -3.0,  -5.0,   0.0,  -1.0;
+  			1.0,   1.0,   1.0,   0.0,   0.0,   0.0
+		];
+
+		let expected_b = vec![10., 15., 33.];
+		let expected_c = vec![1., 2., 3., 4., 0., 0., 0.];
+
+		assert_matrix_eq!(lp.A, expected_A);
+		assert_eq!(lp.b, expected_b);
+		assert_eq!(lp.c, expected_c);
+		assert_eq!(lp.form, LPForm::Minimization);
+	}
+
+	fn gen_constraint(variables: Vec<(String, f64)>, constant: f64, form: ConstraintForm) -> Constraint {
+		Constraint {
+			variables: variables.iter().map(|ref mut v| Variable { name: v.0.clone(), coefficient: v.1, upper_bound: None, lower_bound: None}).collect(),
+			constant: constant,
+			form: form
+		}
+	}
+}
