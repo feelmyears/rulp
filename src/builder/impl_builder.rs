@@ -1,9 +1,9 @@
 use lp::{Lp, Optimization};
 use rulinalg::matrix::Matrix;
-use super::{Builder, Variable, Constraint, Objective, Relation, HashSet, HashMap};
+use super::*;
 
-impl Builder {
-	pub fn new() -> Self {
+impl BuilderBase for Builder {
+	fn new() -> Self {
 		Self {
 			variables: HashSet::new(),
 			variable_indices: HashMap::new(),
@@ -12,27 +12,21 @@ impl Builder {
 		}
 	}
 
-	pub fn add_variable(&mut self, name: &str) {
-		if !(self.variables.contains(name)) {
+	fn add_variable(&mut self, variable: Variable) {
+		if !(self.variables.contains(&variable.name)) {
 			let num_variables = self.variables.len();
-			self.variable_indices.insert(name.to_string(), num_variables);
-			self.variables.insert(name.to_string());
+			self.variable_indices.insert(variable.name.clone(), num_variables);
+			self.variables.insert(variable.name.clone());
 		}
 	}
 
-	pub fn add_constraint(&mut self, constraint: Constraint) {
-		self.verify_constraint(&constraint);
+	fn add_constraint(&mut self, constraint: Constraint) {
+		self.check_variables(&constraint.variables).expect("Unknown variable in constraint");
 		self.constraints.push(constraint);
 	}
 
-	pub fn add_objective(&mut self, objective: Constraint) {
-		self.verify_constraint(&objective);
-
-		match objective.relation {
-			Relation::LessThanOrEqual => (),
-			Relation::GreaterThanOrEqual => (),
-			_ => panic!("Invalid objective form provided. Must be either LessThanOrEqual (minimization) or GreaterThanOrEqual (maximization)!")
-		};
+	fn add_objective(&mut self, objective: Objective) {
+		self.check_variables(&objective.variables).expect("Unknown variable in objective");
 
 		let curr_objective = self.objective.take();
 		match curr_objective {
@@ -45,7 +39,7 @@ impl Builder {
 		}
 	}
 
-	pub fn generate_lp(&mut self) -> Lp {
+	fn build_lp(&mut self) -> Lp {
 		self.convert_to_standard_form();
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
@@ -60,7 +54,9 @@ impl Builder {
 			optimization: opt
 		}
 	}
+}
 
+impl Builder {
 	fn generate_A(&self) -> Matrix<f64> {
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
@@ -104,9 +100,10 @@ impl Builder {
 				}
 				c[num_variables] = obj.constant;
 
-				match obj.relation {
-					Relation::LessThanOrEqual => Optimization::Min,
-					_ 				=> Optimization::Max
+				if obj.maximize {
+					Optimization::Max
+				} else {
+					Optimization::Min
 				}
 			}
 		};
@@ -114,13 +111,14 @@ impl Builder {
 		(c, opt)
 	}
 
-
-	fn verify_constraint(&self, constraint: &Constraint) {
-		for ref var in &constraint.variables {
+	fn check_variables(&self, variables: &Vec<Variable>) -> Option<()> {
+		for ref var in variables {
 			if !self.variables.contains(&var.name) {
-				panic!("Attempted to add constraint for unknown variable: {}", var.name);
+				return None
 			}
 		}
+
+		Some(())
 	}
 
 	fn convert_to_standard_form(&mut self) {
@@ -153,18 +151,22 @@ impl Builder {
 			let slack = format!("slack_{}", slack_ct);
 			slack_ct += 1;
 
-			vars_to_add.push(slack.clone());
-			constraint.variables.push(Variable {
+
+			let var = Variable {
 				name: slack,
 				coefficient: 1.,
 				upper_bound: None,
 				lower_bound: Some(0.)
-			});
+			};
+
+
+			vars_to_add.push(var.clone());
+			constraint.variables.push(var);
 			constraint.relation = Relation::Equal;
 		}
 
 		for v in vars_to_add {
-			self.add_variable(&v);
+			self.add_variable(v);
 		}
 	}
 
@@ -178,18 +180,20 @@ impl Builder {
 			let excess = format!("excess_{}", excess_ct);
 			excess_ct += 1;
 
-			vars_to_add.push(excess.clone());
-			constraint.variables.push(Variable {
+			let var = Variable {
 				name: excess,
 				coefficient: -1.,
 				upper_bound: None,
 				lower_bound: Some(0.)
-			});
+			};
+
+			vars_to_add.push(var.clone());
+			constraint.variables.push(var);
 			constraint.relation = Relation::Equal;
 		}
 
 		for v in vars_to_add {
-			self.add_variable(&v);
+			self.add_variable(v);
 		}
 	}
 }

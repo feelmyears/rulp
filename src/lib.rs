@@ -9,7 +9,7 @@ extern crate rulinalg;
 pub mod builder;
 pub mod lp;
 pub mod parser;
-// pub mod solver;
+pub mod solver;
 
 // Internal
 mod utils;
