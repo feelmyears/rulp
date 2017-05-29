@@ -1,3 +1,3 @@
 extern crate rulp;
 
-pub mod solve;
+pub mod solve_tests;
