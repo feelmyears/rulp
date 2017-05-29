@@ -17,4 +17,6 @@ impl SimplexSolver {
 	fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
 		unimplemented!();
 	}
+
+	
 }

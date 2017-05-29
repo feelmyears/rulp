@@ -59,8 +59,6 @@ impl Parser {
 		return Variable {
 			name: caps["name"].to_string(),
 			coefficient: 0.,
-			lower_bound: None,
-			upper_bound: None
 		}	
 	}
 
@@ -127,8 +125,6 @@ impl Parser {
 		Variable {
 				name: name,
 				coefficient: coefficient * sign,
-				lower_bound: None,
-				upper_bound: None
 		}
 	}
 }
