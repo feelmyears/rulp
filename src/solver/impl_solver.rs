@@ -88,9 +88,9 @@ impl SimplexSolver {
 			}
 		}
 		
-		println!("{:}", lp);
-		println!("{:?}", mat_builder);
-		println!("{:?}", mat_builder.len());
+		// println!("{:}", lp);
+		// println!("{:?}", mat_builder);
+		// println!("{:?}", mat_builder.len());
 
 		Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder)
 	}
@@ -235,9 +235,9 @@ impl SimplexSolver {
 		unsafe {
 			let new_rows = self.tableau.rows(); 								// Same as original
 			let new_cols = self.tableau.cols() + unspanned_rows.len(); 				// Adding n more columns for n new artificial vars (for phase I)
-			println!("Attempting phase one");
+			// println!("Attempting phase one");
 			let mut phase_one = Matrix::new(new_rows, new_cols, vec![0.; new_rows * new_cols]);
-			println!("Got past phase one");
+			// println!("Got past phase one");
 
 			// Transferring original data
 			for row in 1 .. self.tableau.rows() { 								// Skipping first row (will be for new objective function)
