@@ -14,18 +14,6 @@ impl SolverBase for SimplexSolver {
 	}
 
 	fn solve(&self) -> Solution {
-		/*let mut localA = self.lp.A.clone();
-		let mut localb = self.lp.b.clone();
-		let mut localc = self.lp.c.clone();
-		let mut localopt = self.lp.optimization.clone();
-		let mut localvars = self.lp.vars.clone();
-		let mut localLP = Lp {
-			A: localA,
-			b: localb,
-			c: localc,
-			optimization: localopt,
-			vars: localvars,
-		};*/
 		let mut local = SimplexSolver::new(self.lp.clone());
 
 		match local.find_unspanned_rows() {

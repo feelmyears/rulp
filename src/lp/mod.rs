@@ -1,4 +1,3 @@
-use rulinalg::matrix::Matrix;
 use std::collections::HashSet;
 use rulinalg::matrix::{BaseMatrix, Matrix};
 use std::fmt;

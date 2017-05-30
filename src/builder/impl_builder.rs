@@ -46,17 +46,12 @@ impl BuilderBase for Builder {
 		let A = self.generate_A();
 		let b = self.generate_b();
 		let (c, opt) = self.generate_c();
-		let vars = vec![];
-		for v in self.variables {
-			vars.push(v);
-		}
 
 		Lp {
 			A: A,
 			b: b,
 			c: c,
 			optimization: opt,
-			vars: vars,
 		}
 	}
 }
