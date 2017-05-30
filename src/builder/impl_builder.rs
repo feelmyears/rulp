@@ -99,7 +99,7 @@ impl Builder {
 
 	fn generate_c(&self) -> (Vec<f64>, Optimization) {
 		let num_variables = self.variables.len();
-		let mut c = vec![0.; num_variables + 1];
+		let mut c = vec![0.; num_variables];
 
 		let opt = match self.objective {
 			None => {
@@ -109,7 +109,6 @@ impl Builder {
 				for ref var in &obj.variables {
 					c[self.variable_indices[&var.name]] = var.coefficient;
 				}
-				c[num_variables] = obj.constant;
 
 				if obj.maximize {
 					Optimization::Max

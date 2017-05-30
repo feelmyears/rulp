@@ -18,6 +18,7 @@ pub enum Status {
 	Unbounded
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct Solution {
 	lp: Lp,
 	pub values: Option<Vec<f64>>, 
@@ -30,6 +31,7 @@ pub trait SolverBase {
 	fn solve(&self) -> Solution;
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct SimplexSolver {
 	lp: Lp,
 	pub tableau: Matrix<f64>
