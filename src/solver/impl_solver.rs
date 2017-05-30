@@ -21,7 +21,44 @@ impl SolverBase for SimplexSolver {
 	///
 	/// Returns a Solution struct.
 	///
-	/// 
+	/// # Examples
+	/// ```
+	/// # extern crate rulinalg;
+	/// # extern crate rulp;
+	/// use rulp::solver::{SimplexSolver, Status, SolverBase};
+	/// use std::collections::HashSet;
+	/// use rulp::lp::{Lp, Optimization};
+	/// use rulinalg::matrix::{Matrix, BaseMatrixMut};
+	/// use std::f64::INFINITY;
+	///
+	/// # fn main() {
+	/// let A = Matrix::new(2, 4, vec![2., 1., 1., 0.,
+	///									1., 2., 0., 1.]);
+	/// let b = vec![4., 3.];
+	/// let c = vec![-1., -1., 0., 0.];
+	/// let mut vars = vec![];
+	/// vars.push("x1".to_string());
+	/// vars.push("x2".to_string());
+	/// vars.push("x3".to_string());
+	/// vars.push("x4".to_string());
+	/// let lp = Lp {
+	/// 		A: A,
+	/// 		b: b,
+	/// 		c: c,
+	/// 		optimization: Optimization::Max,
+	/// 		vars: vars,
+	///			num_artificial_vars: 0,
+	/// };
+	///
+	/// let simplex = SimplexSolver::new(lp);
+	/// let expected = vec![5./3., 2./3., 0., 0.];
+	/// let solution = simplex.solve();
+	/// assert_eq!(solution.status, Status::Optimal);
+	/// assert_eq!(solution.values.unwrap(), expected);
+	/// assert_eq!(solution.objective.unwrap(), 7./3.);
+	/// # }
+	/// ```
+
 	fn solve(&self) -> Solution {
 		println!("Solver called");
 		let mut local = SimplexSolver::new(self.lp.clone());
@@ -661,7 +698,6 @@ mod solve_tests {
 		for i in 0..expected.len() {
 			assert_approx_eq!(res[i], expected[i]);
 		}
-		//assert_approx_eq!(solution.values.unwrap(), expected);
 		assert_eq!(solution.objective.unwrap(), 1052000.);
 	}
 }
