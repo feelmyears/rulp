@@ -20,7 +20,7 @@ impl SolverBase for SimplexSolver {
 	///
 	/// Returns a Solution struct.
 	///
-	/// 
+	/// # Examples
 	/// ```
 	/// # extern crate rulinalg;
 	/// # extern crate rulp;
