@@ -1,8 +1,5 @@
-use rulp::builder::{Builder, BuilderBase};
-use rulp::parser::{Parser, ParserBase};
-use rulp::solver::{SolverBase, SimplexSolver, Solution};
-use rulp::lp::{Lp, Optimization};
-
+#[allow(unused_imports)]
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+#[cfg(test)]
 mod simple_test;
-
-use rulinalg::matrix::Matrix;
