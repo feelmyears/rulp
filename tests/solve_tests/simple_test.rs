@@ -39,9 +39,9 @@ fn full_case_study_test () {
 		maximize objective: 100000.*television + 40000.*newspaper + 18000.*radio;
 
 		subject to constraint_1: 20.*television + 6.*newspaper + 3.*radio <= 182.;
-		subject to constraint_2: 1.*newspaper <= 10.;
-		subject to constraint_3: -1.*television + -1.*newspaper + 1.*radio <= 0.;
-		subject to constraint_4: -9.*television + 1.*newspaper + 1.*radio <= 0.;
+		subject to constraint_2: newspaper <= 10.;
+		subject to constraint_3: -1.*television + -1.*newspaper + radio <= 0.;
+		subject to constraint_4: -9.*television + newspaper + radio <= 0.;
 
 		# Nothing more to see here;
 	";
