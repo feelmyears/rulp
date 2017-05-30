@@ -50,5 +50,6 @@ pub struct Builder {
 	variables: HashSet<String>,
 	variable_indices: HashMap<String, usize>,
 	constraints: Vec<Constraint>,
-	objective: Option<Objective>
+	objective: Option<Objective>,
+	var_names: Vec<String>
 }

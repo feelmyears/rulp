@@ -64,16 +64,17 @@ fn create_dummy_lp() -> Lp {
 					1., 2., 0., 1.];
 	let b = vec![4., 3.];
 	let c = vec![-1., -1., 0., 0.];
-	let mut vars = HashSet::new();
-	vars.insert("x1".to_string());
-	vars.insert("x2".to_string());
-	vars.insert("x3".to_string());
-	vars.insert("x4".to_string());
+	let mut vars = vec![];
+	vars.push("x1".to_string());
+	vars.push("x2".to_string());
+	vars.push("x3".to_string());
+	vars.push("x4".to_string());
 	Lp {
 			A: A,
 			b: b,
 			c: c,
 			optimization: Optimization::Max,
 			vars: vars,
+			num_artificial_vars: 0
 	}
 }

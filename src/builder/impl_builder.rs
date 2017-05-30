@@ -10,6 +10,7 @@ impl BuilderBase for Builder {
 			variable_indices: HashMap::new(),
 			constraints: vec![],
 			objective: None,
+			var_names: vec![]
 		}
 	}
 
@@ -19,6 +20,7 @@ impl BuilderBase for Builder {
 			let num_variables = self.variables.len();
 			self.variable_indices.insert(variable.name.clone(), num_variables);
 			self.variables.insert(variable.name.clone());
+			self.var_names.push(variable.name.clone());
 		}
 	}
 
@@ -51,6 +53,7 @@ impl BuilderBase for Builder {
 	/// in the process.
 	fn build_lp(&mut self) -> Lp {
 		//self.convert_to_standard_form();
+		//let num_artificial_vars = self.convert_to_standard_form();
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
 		let A = self.generate_A();
@@ -62,7 +65,8 @@ impl BuilderBase for Builder {
 			b: b,
 			c: c,
 			optimization: opt,
-			vars: self.variables.clone(),
+			vars: self.var_names.clone(),
+			num_artificial_vars: 0//num_artificial_vars
 		}
 	}
 }
@@ -131,7 +135,7 @@ impl Builder {
 		Some(())
 	}
 
-	fn convert_to_standard_form(&mut self) {
+	fn convert_to_standard_form(&mut self) -> usize {
 		let mut needs_slack = vec![];
 		let mut needs_excess = vec![];
 
@@ -147,8 +151,12 @@ impl Builder {
 			}
 		}
 
+		let num_artificial_vars = needs_slack.len() + needs_excess.len();
+
 		self.add_slack_variables(needs_slack);
 		self.add_excess_variables(needs_excess);
+
+		num_artificial_vars
 	}
 
 	fn add_slack_variables(&mut self, constraints: Vec<usize>) {
