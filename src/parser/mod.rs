@@ -10,6 +10,7 @@ use lp::Lp;
 use std::fs::File;
 use builder::{Variable, Constraint, Objective, Builder, BuilderBase};
 
+
 mod impl_parser;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -35,6 +36,8 @@ pub struct Parser {
 	equation_component_regex: Regex,
 	objective_regex: Regex,
 }
+
+
 
 // #[cfg(test)]
 // mod LPParser_tests {

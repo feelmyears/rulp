@@ -4,6 +4,7 @@
 //! linear program-solving capabilities.
 //! This is implemented via the Simplex Tableau
 //! method.
+use std::fmt;
 use rulinalg::matrix::{Matrix, BaseMatrix};
 use assert_approx_eq::*;
 use lp::Lp;
@@ -35,4 +36,10 @@ pub trait SolverBase {
 pub struct SimplexSolver {
 	lp: Lp,
 	pub tableau: Matrix<f64>
+}
+
+impl fmt::Display for Solution {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    	write!(f, "Nada")
+    }
 }

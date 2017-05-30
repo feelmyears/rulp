@@ -9,6 +9,7 @@ pub struct Lp {
 	pub c: Vec<f64>,
 	pub optimization: Optimization,
 	pub vars: HashSet<String>,
+	pub num_artificial_vars: usize,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -21,7 +22,7 @@ impl fmt::Display for Lp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     	unsafe {
     		let opt_str = if self.optimization == Optimization::Max {"max"} else {"min"};
-    		writeln!(f, "{} LP: {:>3} variables, {:>3} constraints\n", opt_str, self.c.len(), self.b.len());
+    		writeln!(f, "{} LP: {:>3} variables ({} artificial), {:>3} constraints\n", opt_str, self.c.len(), self.num_artificial_vars, self.b.len());
     		for c in 0 .. self.A.cols() {
     			write!(f, "{:>5.1}  ", self.c[c]);
     		}

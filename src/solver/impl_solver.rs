@@ -441,6 +441,7 @@ mod solve_tests {
 				c: c,
 				optimization: Optimization::Max,
 				vars: vars,
+				num_artificial_vars: 0
 		}
 	}
 
@@ -472,6 +473,7 @@ fn is_optimal_test() {
 			c: c,
 			optimization: Optimization::Max,
 			vars: vars.clone(),
+			num_artificial_vars: 0,
 	};
 	let Lp2 = Lp {
 			A: A,
@@ -479,6 +481,7 @@ fn is_optimal_test() {
 			c: c2,
 			optimization: Optimization::Max,
 			vars: vars,
+			num_artificial_vars: 0
 	};
 	let not_optimal = SimplexSolver::new(Lp1);
 	let optimal = SimplexSolver::new(Lp2);
@@ -550,6 +553,7 @@ fn is_optimal_test() {
 				c: c,
 				optimization: Optimization::Max,
 				vars: vars.clone(),
+				num_artificial_vars: 0
 		};
 		let simplex = SimplexSolver::new(lp);
 
@@ -660,6 +664,7 @@ fn is_optimal_test() {
 				c: c,
 				optimization: Optimization::Max,
 				vars: vars,
+				num_artificial_vars: 0
 		};
 		let simplex = SimplexSolver::new(lp);
 		let solution = simplex.solve();

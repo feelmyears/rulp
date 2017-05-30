@@ -50,7 +50,7 @@ impl BuilderBase for Builder {
 	/// Converts the user-defined parameters into standard form
 	/// in the process.
 	fn build_lp(&mut self) -> Lp {
-		self.convert_to_standard_form();
+		let num_artificial_vars = self.convert_to_standard_form();
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
 		let A = self.generate_A();
@@ -63,6 +63,7 @@ impl BuilderBase for Builder {
 			c: c,
 			optimization: opt,
 			vars: self.variables.clone(),
+			num_artificial_vars: num_artificial_vars
 		}
 	}
 }
@@ -131,7 +132,7 @@ impl Builder {
 		Some(())
 	}
 
-	fn convert_to_standard_form(&mut self) {
+	fn convert_to_standard_form(&mut self) -> usize {
 		let mut needs_slack = vec![];
 		let mut needs_excess = vec![];
 
@@ -147,8 +148,12 @@ impl Builder {
 			}
 		}
 
+		let num_artificial_vars = needs_slack.len() + needs_excess.len();
+
 		self.add_slack_variables(needs_slack);
 		self.add_excess_variables(needs_excess);
+
+		num_artificial_vars
 	}
 
 	fn add_slack_variables(&mut self, constraints: Vec<usize>) {
