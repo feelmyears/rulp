@@ -1,3 +1,8 @@
+//! The parser module.
+//!
+//! This code provides an alternative method for
+//! inputing linear program problems, either by
+//! text input or by reading a file.
 extern crate regex;
 use self::regex::Regex;
 

@@ -6,6 +6,9 @@ use std::f64::INFINITY;
 const OBJ_COEFFS_ROW_INDEX: usize = 0;
 
 impl SolverBase for SimplexSolver {
+	/// Constructor for SolverBase struct.
+	/// 
+	/// Requires an input Lp struct.
 	fn new(lp: Lp) -> Self {
 		SimplexSolver {
 			tableau: SimplexSolver::convert_lp_to_tableau(&lp),
@@ -13,6 +16,36 @@ impl SolverBase for SimplexSolver {
 		}	
 	}
 
+	/// Solves the SimplexSolver.
+	///
+	/// Returns a Solution struct.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let A = matrix![2., 1., 1., 0.;
+	///				1., 2., 0., 1.];
+	/// let b = vec![4., 3.];
+	/// let c = vec![-1., -1., 0., 0.];
+	/// let mut vars = HashSet::new();
+	/// vars.insert("x1".to_string());
+	/// vars.insert("x2".to_string());
+	/// vars.insert("x3".to_string());
+	/// vars.insert("x4".to_string());
+	/// Lp {
+	/// 		A: A,
+	/// 		b: b,
+	/// 		c: c,
+	/// 		optimization: Optimization::Max,
+	/// 		vars: vars,
+	/// }
+	/// let simplex = SimplexSolver::new(lp);
+	/// let expected = vec![5./3., 2./3., 0., 0.];
+	/// let solution = simplex.solve();
+	/// assert_eq!(solution.status, Status::Optimal);
+	/// assert_eq!(solution.values.unwrap(), expected);
+	/// assert_eq!(solution.objective.unwrap(), 7./3.);
+	/// ```
 	fn solve(&self) -> Solution {
 		let mut local = SimplexSolver::new(self.lp.clone());
 
@@ -60,7 +93,6 @@ impl SolverBase for SimplexSolver {
 
 impl SimplexSolver {
 	fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
-		// add [1 c 0]
 		let mut mat_builder: Vec<f64> = vec![1.];
 		for opt_coeff in &lp.c {
 			match lp.optimization {
@@ -73,7 +105,6 @@ impl SimplexSolver {
 			}
 		}
 		mat_builder.push(0.);
-		// add [0 A b]
 		unsafe {
 			for row in 0 .. lp.A.rows() {
 				mat_builder.push(0.);

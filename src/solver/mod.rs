@@ -1,3 +1,9 @@
+//! The solver module.
+//!
+//! This code provides the rulp library with
+//! linear program-solving capabilities.
+//! This is implemented via the Simplex Tableau
+//! method.
 use rulinalg::matrix::{Matrix, BaseMatrix};
 use assert_approx_eq::*;
 use lp::Lp;

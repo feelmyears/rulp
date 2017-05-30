@@ -3,6 +3,7 @@ use rulinalg::matrix::{Matrix, BaseMatrix};
 use super::*;
 
 impl BuilderBase for Builder {
+	/// Constructor for Builder struct.
 	fn new() -> Self {
 		Self {
 			variables: HashSet::new(),
@@ -12,6 +13,7 @@ impl BuilderBase for Builder {
 		}
 	}
 
+	/// Adds a new user-defined Variable struct to this Builder struct.
 	fn add_variable(&mut self, variable: Variable) {
 		if !(self.variables.contains(&variable.name)) {
 			let num_variables = self.variables.len();
@@ -20,11 +22,13 @@ impl BuilderBase for Builder {
 		}
 	}
 
+	/// Adds a new user-defined Constraint struct to this Builder struct.
 	fn add_constraint(&mut self, constraint: Constraint) {
 		self.check_variables(&constraint.variables).expect("Unknown variable in constraint");
 		self.constraints.push(constraint);
 	}
 
+	/// Adds a new user-defined Objective struct to this Builder struct.
 	fn add_objective(&mut self, objective: Objective) {
 		self.check_variables(&objective.variables).expect("Unknown variable in objective");
 
@@ -39,6 +43,12 @@ impl BuilderBase for Builder {
 		}
 	}
 
+	/// Constructor for Lp struct.
+	///
+	/// Requires this Builder struct as input.
+	///
+	/// Converts the user-defined parameters into standard form
+	/// in the process.
 	fn build_lp(&mut self) -> Lp {
 		self.convert_to_standard_form();
 		let num_variables = self.variables.len();
