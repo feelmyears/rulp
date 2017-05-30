@@ -57,7 +57,7 @@ impl ParserBase for Parser {
 	/// Constructor for Lp struct.
 	///
 	/// Takes a file input to be read and a Builder struct.
-	fn lp_from_file<B: BuilderBase>(file: &mut File, mut builder: B) -> Lp {
+	fn lp_from_file<B: BuilderBase>(file: &mut File, builder: B) -> Lp {
 		Self::lp_from_text(&read_file_contents(file), builder)
 	}
 }

@@ -15,6 +15,7 @@ fn main() {
 
 	let builder = Builder::new();
 	let lp = Parser::lp_from_file(&mut source_file, builder);
+	println!("{:}", &lp);
 	let solver = SimplexSolver::new(lp);
 	let solution = solver.solve();
 
@@ -23,7 +24,8 @@ fn main() {
 		let mut output_file = File::create(&args[2]).unwrap();
 		output_file.write(format!("{:}", solution).as_bytes()).expect("Failed to write to destination");
 	} else {
-		let mut output_file = File::create("solution.txt").unwrap();
-		output_file.write(format!("{:}", solution).as_bytes()).expect("Failed to write to destination");
+		// let mut output_file = File::create("solution.txt").unwrap();
+		// output_file.write(format!("{:}", solution).as_bytes()).expect("Failed to write to destination");
+		println!("{:}", &solution);
 	}
 }

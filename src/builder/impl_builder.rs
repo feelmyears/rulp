@@ -54,7 +54,7 @@ impl BuilderBase for Builder {
 	fn build_lp(&mut self) -> Lp {
 		//self.convert_to_standard_form();
 		// println!("{:?}", self);
-		// let num_artificial_vars = self.convert_to_standard_form();
+		let num_artificial_vars = self.convert_to_standard_form();
 		// println!("{:?}", self);
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
@@ -68,8 +68,8 @@ impl BuilderBase for Builder {
 			c: c,
 			optimization: opt,
 			vars: self.var_names.clone(),
-			num_artificial_vars: 0
-			// num_artificial_vars: num_artificial_vars
+			// num_artificial_vars: 0
+			num_artificial_vars: num_artificial_vars
 
 		}
 	}
