@@ -16,10 +16,10 @@ pub struct Components {
 
 pub trait ParserBase {
 	fn parse_components_from_text(text: &str) -> Components;
-	fn parse_components_from_file(file: &File) -> Components;
+	fn parse_components_from_file(file: &mut File) -> Components;
 
-	fn lp_from_text<B: BuilderBase>(text: &str, builder: B) -> Lp;
-	fn lp_from_file<B: BuilderBase>(file: &File, builder: B) -> Lp;
+	fn lp_from_text<B: BuilderBase>(text: &str, mut builder: B) -> Lp;
+	fn lp_from_file<B: BuilderBase>(file: &mut File, mut builder: B) -> Lp;
 }
 
 #[derive(Debug)]
