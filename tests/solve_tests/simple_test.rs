@@ -43,5 +43,6 @@ fn create_dummy_lp() -> Lp {
 			c: c,
 			optimization: Optimization::Max,
 			vars: vars,
+			num_artificial_vars: 0
 	}
 }
