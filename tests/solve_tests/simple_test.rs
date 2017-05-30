@@ -1,6 +1,7 @@
 use super::*;
 use std::collections::HashSet;
 use rulp::solver::Status;
+use assert_approx_eq::*;
 
 #[test]
 fn simple_minimize_test() {
@@ -237,6 +238,39 @@ fn solve_test() {
 	let expected = vec![5./3., 2./3., 0., 0.];
 	let solution = simplex.solve();
 	assert_eq!(solution.status, Status::Optimal);
-	assert_eq!(solution.values.unwrap(), vec![5./3., 2./3., 0., 0.]);
+	assert_eq!(solution.values.unwrap(), expected);
 	assert_eq!(solution.objective.unwrap(), 7./3.);
+}
+
+// http://college.cengage.com/mathematics/larson/elementary_linear/4e/shared/downloads/c09s3.pdf
+// Example 5
+#[test]
+fn case_study_test () {
+	let A = matrix![20., 6., 3.;
+					0., 1., 0.;
+					-1., -1., 1.;
+					-9., 1., 1.];
+	let b = vec![182., 10., 0., 0.];
+	let c = vec![100000., 40000., 18000.];
+	let mut vars = HashSet::new();
+	vars.insert("x1".to_string());
+	vars.insert("x2".to_string());
+	vars.insert("x3".to_string());
+	let lp = Lp {
+			A: A,
+			b: b,
+			c: c,
+			optimization: Optimization::Max,
+			vars: vars,
+	};
+	let simplex = SimplexSolver::new(lp);
+	let solution = simplex.solve();
+	let res = solution.values.unwrap();
+	let expected = vec![4., 10., 14.];
+	assert_eq!(solution.status, Status::Optimal);
+	for i in 0..res.len() {
+		assert_approx_eq!(res[i], expected[i]);
+	}
+	//assert_approx_eq!(solution.values.unwrap(), expected);
+	assert_eq!(solution.objective.unwrap(), 1052000.);
 }

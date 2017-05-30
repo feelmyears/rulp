@@ -20,7 +20,7 @@ impl SolverBase for SimplexSolver {
 		    Some(rows) => {
 		    	// unspanned rows = no clear basic feasible solution
 		    	let mut phase_one = local.generate_phase_one(&rows);
-		    	phase_one.optimize();
+		    	/*phase_one.optimize();
 		    	if phase_one.get_objective() != 0. {
 		    		return Solution {
 						lp: self.lp.clone(),
@@ -28,9 +28,9 @@ impl SolverBase for SimplexSolver {
 		    			objective: None,
 		    			status: Status::Infeasible,
 		    		};
-		    	} else {
+		    	} else {*/
 		    		local.convert_to_phase_two(&phase_one);
-		    	}
+		    	//}
 
 		    },
 	    	None => {} // Do nothing
@@ -107,14 +107,15 @@ impl SimplexSolver {
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if self.is_basic(i) {
-					bfs.push(*self.tableau.get_unchecked([basic_ct + 1, rhs_index]));
+					let val = *self.tableau.get_unchecked([basic_ct + 1, rhs_index]);
+					bfs.push(val);
 					basic_ct += 1;
 				} else {
 					bfs.push(0.0);
 				}
 			}
 		}
-		bfs
+		return bfs;
 	}
 
 	pub fn is_basic(&self, col: usize) -> bool {

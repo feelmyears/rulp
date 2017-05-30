@@ -6,3 +6,4 @@ authors = ["feelmyears <philipmeyers2017@u.northwestern.edu>"]
 [dependencies]
 rulinalg="0.4.2"
 regex = "0.2"
+assert_approx_eq = "0.2.2"

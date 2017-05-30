@@ -5,6 +5,7 @@
 
 #[macro_use]
 extern crate rulinalg;
+extern crate assert_approx_eq;
 
 // External
 pub mod builder;
