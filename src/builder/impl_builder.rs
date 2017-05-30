@@ -52,6 +52,7 @@ impl BuilderBase for Builder {
 			b: b,
 			c: c,
 			optimization: opt,
+			vars: self.variables.clone(),
 		}
 	}
 }

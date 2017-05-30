@@ -8,7 +8,7 @@ pub struct Lp {
 	pub b: Vec<f64>,
 	pub c: Vec<f64>,
 	pub optimization: Optimization,
-	pub vars: Vec<String>,
+	pub vars: HashSet<String>,
 }
 
 #[derive(Debug, PartialEq, Clone)]

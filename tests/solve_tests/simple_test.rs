@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashSet;
 
 #[test]
 fn simple_minimize_test() {
@@ -34,11 +35,17 @@ fn to_tableau_test () {
 					1., 2., 0., 1.];
 	let b = vec![4., 3.];
 	let c = vec![-1., -1., 0., 0.];
+	let mut vars = HashSet::new();
+	vars.insert("x1".to_string());
+	vars.insert("x2".to_string());
+	vars.insert("x3".to_string());
+	vars.insert("x4".to_string());
 	let lp = Lp {
 			A: A,
 			b: b,
 			c: c,
 			optimization: Optimization::Max,
+			vars: vars,
 	};
 	assert_matrix_eq!(SimplexSolver::convert_lp_to_tableau(&lp), expected);
 }
