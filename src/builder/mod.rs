@@ -21,7 +21,6 @@ pub struct Constraint {
 pub struct Objective {
 	pub name: String,
 	pub variables: Vec<Variable>,
-	pub constant: f64,
 	pub maximize: bool 
 }
 

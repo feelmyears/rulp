@@ -57,12 +57,9 @@ impl SolverBase for SimplexSolver {
 }
 
 
-
-// --------------------------------------------------------------------------------
-
-
 impl SimplexSolver {
 	pub fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
+
 		// add [1 c 0]
 		let mut mat_builder: Vec<f64> = vec![1.];
 		for opt_coeff in &lp.c {
@@ -83,10 +80,15 @@ impl SimplexSolver {
 				for col in 0 .. lp.A.cols() {
 					mat_builder.push(*lp.A.get_unchecked([row, col]));
 				}
-				mat_builder.push(*lp.b.get(row).unwrap());
+				mat_builder.push(lp.b[row]);
 			}
 		}
-		return Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder);
+		
+		println!("{:}", lp);
+		println!("{:?}", mat_builder);
+		println!("{:?}", mat_builder.len());
+
+		Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder)
 	}
 
 	pub fn is_optimal(&self) -> bool {
@@ -228,7 +230,9 @@ impl SimplexSolver {
 		unsafe {
 			let new_rows = self.tableau.rows(); 								// Same as original
 			let new_cols = self.tableau.cols() + unspanned_rows.len(); 				// Adding n more columns for n new artificial vars (for phase I)
+			println!("Attempting phase one");
 			let mut phase_one = Matrix::new(new_rows, new_cols, vec![0.; new_rows * new_cols]);
+			println!("Got past phase one");
 
 			// Transferring original data
 			for row in 1 .. self.tableau.rows() { 								// Skipping first row (will be for new objective function)

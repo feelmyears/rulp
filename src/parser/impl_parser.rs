@@ -126,7 +126,6 @@ impl Parser {
 	}
 
 	fn parse_variable_declaration(&self, data: &str) -> Variable {
-		println!("{:?}", data);
 		let caps = self.variable_declaration_regex.captures(data).unwrap();
 		return Variable {
 			name: caps["name"].to_string(),
@@ -136,7 +135,6 @@ impl Parser {
 
 	fn parse_constraint(&self, data: &str) -> Constraint {
 		let caps = self.constraint_regex.captures(data).unwrap();
-		println!("{:?}", caps);
 		let name = caps["name"].to_string();
 		let relation = if caps["type"].contains("<") {
 			Relation::LessThanOrEqual
@@ -164,7 +162,6 @@ impl Parser {
 		Objective {
 			name: caps["name"].to_string(),
 			variables: self.parse_objective_vars(&caps["equation"]),
-			constant: 0.,
 			maximize: caps["type"].contains("maximize")
 		}
 	}
