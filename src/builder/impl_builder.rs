@@ -50,7 +50,7 @@ impl BuilderBase for Builder {
 	/// Converts the user-defined parameters into standard form
 	/// in the process.
 	fn build_lp(&mut self) -> Lp {
-		self.convert_to_standard_form();
+		//self.convert_to_standard_form();
 		let num_variables = self.variables.len();
 		let num_constraints = self.constraints.len();
 		let A = self.generate_A();

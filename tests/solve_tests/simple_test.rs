@@ -32,31 +32,31 @@ fn full_case_study_test () {
 	let text_problem = "	
 		# This is a problem;
 
-		var a;
-		var b;
-		var c;
+		var television;
+		var newspaper;
+		var radio;
 
-		maximize objective: 100000.*a + 40000.*b + 18000.*c;
+		maximize objective: 100000.*television + 40000.*newspaper + 18000.*radio;
 
-		subject to constraint_1: 2000.*a + 600.*b + 300.*c <= 18200.;
-		subject to constraint_2: 1.*b <= 10.;
-		subject to constraint_3: -1.*a + 1.*b + 1.*c <= 0.;
-		subject to constraint_4: -9.*a + 1.*b + 1.*c <= 0.;
+		subject to constraint_1: 20.*television + 6.*newspaper + 3.*radio <= 182.;
+		subject to constraint_2: 1.*newspaper <= 10.;
+		subject to constraint_3: -1.*television + -1.*newspaper + 1.*radio <= 0.;
+		subject to constraint_4: -9.*television + 1.*newspaper + 1.*radio <= 0.;
 
 		# Nothing more to see here;
 	";
 	let mut builder = Builder::new();
 	let lp = Parser::lp_from_text(text_problem, builder);
 	println!("{}", lp);
-	let solver = SimplexSolver::new(lp);
-	let solution = solver.solve();
+	let simplex = SimplexSolver::new(lp);
+	let solution = simplex.solve();
 	let res = solution.values.unwrap();
 	let expected = vec![4., 10., 14.];
 	assert_eq!(solution.status, Status::Optimal);
-	/*for i in 0..res.len() {
+	for i in 0..res.len() {
 		assert_approx_eq!(res[i], expected[i]);
-	}*/
-	//assert_eq!(solution.objective.unwrap(), 1052000.);
+	}
+	assert_eq!(solution.objective.unwrap(), 1052000.);
 }
 
 fn create_dummy_lp() -> Lp {
