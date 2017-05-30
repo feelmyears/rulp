@@ -10,6 +10,7 @@ impl BuilderBase for Builder {
 			variable_indices: HashMap::new(),
 			constraints: vec![],
 			objective: None,
+			var_names: vec![]
 		}
 	}
 
@@ -19,6 +20,7 @@ impl BuilderBase for Builder {
 			let num_variables = self.variables.len();
 			self.variable_indices.insert(variable.name.clone(), num_variables);
 			self.variables.insert(variable.name.clone());
+			self.var_names.push(variable.name.clone());
 		}
 	}
 
@@ -62,7 +64,7 @@ impl BuilderBase for Builder {
 			b: b,
 			c: c,
 			optimization: opt,
-			vars: self.variables.clone(),
+			vars: self.var_names.clone(),
 			num_artificial_vars: num_artificial_vars
 		}
 	}

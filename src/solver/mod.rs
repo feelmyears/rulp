@@ -40,6 +40,26 @@ pub struct SimplexSolver {
 
 impl fmt::Display for Solution {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    	write!(f, "Nada")
+    	writeln!(f, "").unwrap();
+    	match self.objective {
+    		None => {
+
+    		},
+    		Some(ref obj) => {
+    			writeln!(f, "Objective: {:}", obj).unwrap();
+    		}
+    	}
+    	match self.values {
+    		None => {
+
+    		},
+    		Some(ref vals) => {
+    			for i in 0 .. vals.len() - self.lp.num_artificial_vars {
+    				writeln!(f, "{:}: {:?}", self.lp.vars[i],vals[i]).unwrap();
+    			}
+    		}
+    	}
+
+    	write!(f, "")
     }
 }

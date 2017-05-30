@@ -430,11 +430,11 @@ mod solve_tests {
 						1., 2., 0., 1.];
 		let b = vec![4., 3.];
 		let c = vec![-1., -1., 0., 0.];
-		let mut vars = HashSet::new();
-		vars.insert("x1".to_string());
-		vars.insert("x2".to_string());
-		vars.insert("x3".to_string());
-		vars.insert("x4".to_string());
+		let mut vars = vec![];
+		vars.push("x1".to_string());
+		vars.push("x2".to_string());
+		vars.push("x3".to_string());
+		vars.push("x4".to_string());
 		Lp {
 				A: A,
 				b: b,
@@ -462,11 +462,11 @@ fn is_optimal_test() {
 	let b = vec![6., 9.];
 	let c = vec![-4., -1., 1., 0., 0.]; // not optimal
 	let c2 = vec![4., 1., 1., 0., 0.]; // optimal
-	let mut vars = HashSet::new();
-	vars.insert("x1".to_string());
-	vars.insert("x2".to_string());
-	vars.insert("x3".to_string());
-	vars.insert("x4".to_string());
+	let mut vars = vec![];
+	vars.push("x1".to_string());
+	vars.push("x2".to_string());
+	vars.push("x3".to_string());
+	vars.push("x4".to_string());
 	let Lp1 = Lp {
 			A: A.clone(),
 			b: b.clone(),
@@ -542,11 +542,11 @@ fn is_optimal_test() {
 	                    3., 1., 3., 0., 1.];
 		let b = vec![6., 9.];
 		let c = vec![-4., -1., 1., 0., 0.];
-		let mut vars = HashSet::new();
-		vars.insert("x1".to_string());
-		vars.insert("x2".to_string());
-		vars.insert("x3".to_string());
-		vars.insert("x4".to_string());
+		let mut vars = vec![];
+		vars.push("x1".to_string());
+		vars.push("x2".to_string());
+		vars.push("x3".to_string());
+		vars.push("x4".to_string());
 		let lp = Lp {
 				A: A.clone(),
 				b: b.clone(),
@@ -654,10 +654,10 @@ fn is_optimal_test() {
 						-9., 1., 1.];
 		let b = vec![182., 10., 0., 0.];
 		let c = vec![100000., 40000., 18000.];
-		let mut vars = HashSet::new();
-		vars.insert("x1".to_string());
-		vars.insert("x2".to_string());
-		vars.insert("x3".to_string());
+		let mut vars = vec![];
+		vars.push("x1".to_string());
+		vars.push("x2".to_string());
+		vars.push("x3".to_string());
 		let lp = Lp {
 				A: A,
 				b: b,
