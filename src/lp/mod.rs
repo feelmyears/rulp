@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 use rulinalg::matrix::Matrix;
 use std::collections::HashSet;
-=======
 use rulinalg::matrix::{BaseMatrix, Matrix};
 use std::fmt;
->>>>>>> 38aa0c9aed2649ea513a1a1f1e200acd812a3e68
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Lp {
