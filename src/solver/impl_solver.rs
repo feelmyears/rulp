@@ -59,7 +59,7 @@ impl SolverBase for SimplexSolver {
 // --------------------------------------------------------------------------------
 
 impl SimplexSolver {
-	pub fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
+	fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
 		// add [1 c 0]
 		let mut mat_builder: Vec<f64> = vec![1.];
 		for opt_coeff in &lp.c {
@@ -86,7 +86,7 @@ impl SimplexSolver {
 		return Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder);
 	}
 
-	pub fn is_optimal(&self) -> bool {
+	fn is_optimal(&self) -> bool {
 		let obj_coeffs = &self.tableau.row(OBJ_COEFFS_ROW_INDEX);
 		for &coeff in obj_coeffs.iter() {
 			if coeff < 0. {
@@ -96,7 +96,7 @@ impl SimplexSolver {
 		return true
 	}
 
-	pub fn get_basic_feasible_solution(&self) -> Vec<f64> {
+	fn get_basic_feasible_solution(&self) -> Vec<f64> {
 		let mut bfs = vec![];
 		let mut basic_ct = 0;
 		let rhs_index = self.tableau.cols() - 1;
@@ -115,7 +115,7 @@ impl SimplexSolver {
 		return bfs;
 	}
 
-	pub fn is_basic(&self, col: usize) -> bool {
+	fn is_basic(&self, col: usize) -> bool {
 		if col < 1 || col >= self.tableau.cols() {
 			panic!("Invalid col index {} for basic variable", col);
 		}
@@ -135,7 +135,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn calc_pivot_ratio(&self, row: usize, col: usize) -> Option<f64> {
+	fn calc_pivot_ratio(&self, row: usize, col: usize) -> Option<f64> {
 		if self.is_basic(col) {
 			panic!("Attempting to calculate pivot ratio on basic variable");
 		} else if row == 0 || row >= self.tableau.rows() {
@@ -153,7 +153,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn choose_pivot_row(&self, col: usize) -> usize {
+	fn choose_pivot_row(&self, col: usize) -> usize {
 		let mut min_ratio = INFINITY;
 		let mut min_row = 0;
 
@@ -177,7 +177,7 @@ impl SimplexSolver {
 		min_row
 	}
 
-	pub fn choose_pivot_col(&self) -> usize {
+	fn choose_pivot_col(&self) -> usize {
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if *self.tableau.get_unchecked([0, i]) < 0. {
@@ -189,7 +189,7 @@ impl SimplexSolver {
 		panic!("No pivot var chosen because optimal solution!");
 	}
 
-	pub fn normalize_pivot(&mut self, row: usize, col: usize) {
+	fn normalize_pivot(&mut self, row: usize, col: usize) {
 		unsafe {
 			let coeff = *self.tableau.get_unchecked([row, col]);
 			for c in 1 .. self.tableau.cols() {
@@ -199,7 +199,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn eliminate_row(&mut self, pivot_row: usize, pivot_col: usize, row: usize) {
+	fn eliminate_row(&mut self, pivot_row: usize, pivot_col: usize, row: usize) {
 		unsafe {
 			let mult_factor = *self.tableau.get_unchecked([row, pivot_col]) / *self.tableau.get_unchecked([pivot_row, pivot_col]) * -1.0;
 			for c in 1 .. self.tableau.cols() {
@@ -210,7 +210,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn pivot(&mut self, row: usize, col:usize) {
+	fn pivot(&mut self, row: usize, col:usize) {
 		self.normalize_pivot(row, col);
 
 		for r in 0 .. self.tableau.rows() {

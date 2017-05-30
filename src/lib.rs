@@ -16,5 +16,3 @@ mod utils;
 extern crate rulinalg;
 #[macro_use]
 extern crate assert_approx_eq;
-
-
