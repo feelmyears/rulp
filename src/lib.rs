@@ -3,10 +3,6 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-#[macro_use]
-extern crate rulinalg;
-extern crate assert_approx_eq;
-
 // External
 pub mod builder;
 pub mod lp;
@@ -15,3 +11,10 @@ pub mod solver;
 
 // Internal
 mod utils;
+
+#[macro_use]
+extern crate rulinalg;
+#[macro_use]
+extern crate assert_approx_eq;
+
+

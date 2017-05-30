@@ -1,4 +1,5 @@
 use rulinalg::matrix::{Matrix, BaseMatrix};
+use assert_approx_eq::*;
 use lp::Lp;
 
 mod impl_solver;
