@@ -1,5 +1,6 @@
 use super::*;
 use builder::Relation;
+use utils::read_file_contents;
 
 #[derive(Debug, PartialEq)]
 enum LineType {
@@ -9,24 +10,45 @@ enum LineType {
 	Comment
 }
 
-impl ParserBase for Parser {
-	fn parse_components_from_text(text: &str) -> Components {
-		unimplemented!();
-	}
-
-	fn parse_components_from_file(file: &File) -> Components {
-		unimplemented!();
-	}
-
-	fn lp_from_text<B: BuilderBase>(text: &str, builder: B) -> Lp {
-		unimplemented!();
-	}
-
-	fn lp_from_file<B: BuilderBase>(file: &File, builder: B) -> Lp {
-		unimplemented!();
-	}
+#[derive(Debug, PartialEq)]
+enum Component {
+	Variable(Variable),
+	Constraint(Constraint),
+	Objective(Objective),
+	Comment
 }
 
+
+impl ParserBase for Parser {
+	fn parse_components_from_text(text: &str) -> Components {
+		let p = Parser::new();
+		p.get_components(text)
+	}
+
+	fn parse_components_from_file(file: &mut File) -> Components {
+		Self::parse_components_from_text(&read_file_contents(file))
+	}
+
+	fn lp_from_text<B: BuilderBase>(text: &str, mut builder: B) -> Lp {
+		let components = Self::parse_components_from_text(text);
+
+		for v in components.variables {
+			builder.add_variable(v);
+		}
+
+		for c in components.constraints {
+			builder.add_constraint(c);
+		}
+
+		builder.add_objective(components.objective);
+
+		builder.build_lp()
+	}
+
+	fn lp_from_file<B: BuilderBase>(file: &mut File, mut builder: B) -> Lp {
+		Self::lp_from_text(&read_file_contents(file), builder)
+	}
+}
 
 impl Parser {
 	fn new() -> Self {
@@ -36,6 +58,56 @@ impl Parser {
 			objective_regex: Regex::new(r"(?P<type>minimize|maximize)\s+(?P<name>\w+)\s*:\s*(?P<equation>[^;]*)").unwrap(),
 			equation_component_regex: Regex::new(r"^(?P<vars>[\w\s\*\.\+-]*)\s*((?P<type>==|<=|>=)\s*(?P<constant>\d+\.?\d*)\s*)?$").unwrap(),
 			constraint_regex: Regex::new(r"subject to (?P<name>\w*):\s*(?P<terms>[^=><]+?)\s*(?P<type>==|<=|>=)\s*?(?P<constant>\d+\.?\d*)\s*?").unwrap()
+		}
+	}
+
+	fn get_components(&self, text: &str) -> Components {
+		let components: Vec<Component> = text
+			.split(';')
+			.map(|line| line.trim())
+			.filter(|line| line.len() > 0)
+			.map(|line| self.component_from_line(line))
+			.filter(|component| *component != Component::Comment)
+			.collect();
+
+		let mut variables = vec![];
+		let mut constraints = vec![];
+		let mut objective = None;
+
+		for c in components {
+			match c {
+				Component::Variable(var) => {
+					variables.push(var);
+				},
+				Component::Constraint(con) => {
+					constraints.push(con);
+				},
+				Component::Objective(obj) => {
+					objective = Some(obj);
+				},
+				Component::Comment => {}
+			}
+		}
+
+		Components {
+			variables: variables,
+			constraints: constraints,
+			objective: objective.expect("No objective function provided!")
+		}
+	}
+
+	fn component_from_line(&self, line: &str) -> Component {
+		match self.get_line_type(line) {
+			LineType::Variable => {
+				Component::Variable(self.parse_variable_declaration(line))
+			},
+			LineType::Constraint => {
+				Component::Constraint(self.parse_constraint(line))
+			},
+			LineType::Objective => {
+				Component::Objective(self.parse_objective(line))
+			},
+			LineType::Comment => Component::Comment,
 		}
 	}
 

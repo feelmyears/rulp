@@ -17,8 +17,9 @@ fn simple_minimize_test() {
 		# Nothing more to see here;
 	";
 
-	let builder = Builder::new();
+	let mut builder = Builder::new();
 	let lp = Parser::lp_from_text(text_problem, builder);
+	println!("{}", lp);
 	let solver = SimplexSolver::new(lp);
 	let solution = solver.solve();
 }
