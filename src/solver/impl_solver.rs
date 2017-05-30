@@ -6,6 +6,9 @@ use std::f64::INFINITY;
 const OBJ_COEFFS_ROW_INDEX: usize = 0;
 
 impl SolverBase for SimplexSolver {
+	/// Constructor for SolverBase struct.
+	/// 
+	/// Requires an input Lp struct.
 	fn new(lp: Lp) -> Self {
 		SimplexSolver {
 			tableau: SimplexSolver::convert_lp_to_tableau(&lp),
@@ -13,6 +16,37 @@ impl SolverBase for SimplexSolver {
 		}	
 	}
 
+	/// Solves the SimplexSolver.
+	///
+	/// Returns a Solution struct.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let A = Matrix::new(2, 4, vec![2., 1., 1., 0.,
+	///			  					   1., 2., 0., 1.]);
+	/// let b = vec![4., 3.];
+	/// let c = vec![-1., -1., 0., 0.];
+	/// let mut vars = HashSet::new();
+	/// vars.insert("x1".to_string());
+	/// vars.insert("x2".to_string());
+	/// vars.insert("x3".to_string());
+	/// vars.insert("x4".to_string());
+	/// Lp {
+	/// 		A: A,
+	/// 		b: b,
+	/// 		c: c,
+	/// 		optimization: Optimization::Max,
+	/// 		vars: vars,
+	/// };
+	///
+	/// let simplex = SimplexSolver::new(lp);
+	/// let expected = vec![5./3., 2./3., 0., 0.];
+	/// let solution = simplex.solve();
+	/// assert_eq!(solution.status, Status::Optimal);
+	/// assert_eq!(solution.values.unwrap(), expected);
+	/// assert_eq!(solution.objective.unwrap(), 7./3.);
+	/// ```
 	fn solve(&self) -> Solution {
 		let mut local = SimplexSolver::new(self.lp.clone());
 
@@ -20,7 +54,7 @@ impl SolverBase for SimplexSolver {
 		    Some(rows) => {
 		    	// unspanned rows = no clear basic feasible solution
 		    	let mut phase_one = local.generate_phase_one(&rows);
-		    	phase_one.optimize();
+		    	/*phase_one.optimize();
 		    	if phase_one.get_objective() != 0. {
 		    		return Solution {
 						lp: self.lp.clone(),
@@ -28,9 +62,9 @@ impl SolverBase for SimplexSolver {
 		    			objective: None,
 		    			status: Status::Infeasible,
 		    		};
-		    	} else {
+		    	} else {*/
 		    		local.convert_to_phase_two(&phase_one);
-		    	}
+		    	//}
 
 		    },
 	    	None => {} // Do nothing
@@ -56,11 +90,8 @@ impl SolverBase for SimplexSolver {
 	}
 }
 
-
 impl SimplexSolver {
-	pub fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
-
-		// add [1 c 0]
+	fn convert_lp_to_tableau(lp: &Lp) -> Matrix<f64> {
 		let mut mat_builder: Vec<f64> = vec![1.];
 		for opt_coeff in &lp.c {
 			match lp.optimization {
@@ -73,7 +104,6 @@ impl SimplexSolver {
 			}
 		}
 		mat_builder.push(0.);
-		// add [0 A b]
 		unsafe {
 			for row in 0 .. lp.A.rows() {
 				mat_builder.push(0.);
@@ -91,7 +121,7 @@ impl SimplexSolver {
 		Matrix::new(&lp.A.rows()+1, &lp.A.cols()+2, mat_builder)
 	}
 
-	pub fn is_optimal(&self) -> bool {
+	fn is_optimal(&self) -> bool {
 		let obj_coeffs = &self.tableau.row(OBJ_COEFFS_ROW_INDEX);
 		for &coeff in obj_coeffs.iter() {
 			if coeff < 0. {
@@ -101,7 +131,7 @@ impl SimplexSolver {
 		return true
 	}
 
-	pub fn get_basic_feasible_solution(&self) -> Vec<f64> {
+	fn get_basic_feasible_solution(&self) -> Vec<f64> {
 		let mut bfs = vec![];
 		let mut basic_ct = 0;
 		let rhs_index = self.tableau.cols() - 1;
@@ -109,17 +139,18 @@ impl SimplexSolver {
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if self.is_basic(i) {
-					bfs.push(*self.tableau.get_unchecked([basic_ct + 1, rhs_index]));
+					let val = *self.tableau.get_unchecked([basic_ct + 1, rhs_index]);
+					bfs.push(val);
 					basic_ct += 1;
 				} else {
 					bfs.push(0.0);
 				}
 			}
 		}
-		bfs
+		return bfs;
 	}
 
-	pub fn is_basic(&self, col: usize) -> bool {
+	fn is_basic(&self, col: usize) -> bool {
 		if col < 1 || col >= self.tableau.cols() {
 			panic!("Invalid col index {} for basic variable", col);
 		}
@@ -139,7 +170,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn calc_pivot_ratio(&self, row: usize, col: usize) -> Option<f64> {
+	fn calc_pivot_ratio(&self, row: usize, col: usize) -> Option<f64> {
 		if self.is_basic(col) {
 			panic!("Attempting to calculate pivot ratio on basic variable");
 		} else if row == 0 || row >= self.tableau.rows() {
@@ -157,7 +188,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn choose_pivot_row(&self, col: usize) -> usize {
+	fn choose_pivot_row(&self, col: usize) -> usize {
 		let mut min_ratio = INFINITY;
 		let mut min_row = 0;
 
@@ -181,7 +212,7 @@ impl SimplexSolver {
 		min_row
 	}
 
-	pub fn choose_pivot_col(&self) -> usize {
+	fn choose_pivot_col(&self) -> usize {
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if *self.tableau.get_unchecked([0, i]) < 0. {
@@ -193,7 +224,7 @@ impl SimplexSolver {
 		panic!("No pivot var chosen because optimal solution!");
 	}
 
-	pub fn normalize_pivot(&mut self, row: usize, col: usize) {
+	fn normalize_pivot(&mut self, row: usize, col: usize) {
 		unsafe {
 			let coeff = *self.tableau.get_unchecked([row, col]);
 			for c in 1 .. self.tableau.cols() {
@@ -203,7 +234,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn eliminate_row(&mut self, pivot_row: usize, pivot_col: usize, row: usize) {
+	fn eliminate_row(&mut self, pivot_row: usize, pivot_col: usize, row: usize) {
 		unsafe {
 			let mult_factor = *self.tableau.get_unchecked([row, pivot_col]) / *self.tableau.get_unchecked([pivot_row, pivot_col]) * -1.0;
 			for c in 1 .. self.tableau.cols() {
@@ -214,7 +245,7 @@ impl SimplexSolver {
 		}
 	}
 
-	pub fn pivot(&mut self, row: usize, col:usize) {
+	fn pivot(&mut self, row: usize, col:usize) {
 		self.normalize_pivot(row, col);
 
 		for r in 0 .. self.tableau.rows() {
@@ -386,5 +417,259 @@ impl SimplexSolver {
 			}
 		}
 		return false;
+	}
+}
+
+#[cfg(test)]
+mod solve_tests {
+	use super::*;
+	use std::collections::HashSet;
+
+	fn create_dummy_lp() -> Lp {
+		let A = matrix![2., 1., 1., 0.;
+						1., 2., 0., 1.];
+		let b = vec![4., 3.];
+		let c = vec![-1., -1., 0., 0.];
+		let mut vars = HashSet::new();
+		vars.insert("x1".to_string());
+		vars.insert("x2".to_string());
+		vars.insert("x3".to_string());
+		vars.insert("x4".to_string());
+		Lp {
+				A: A,
+				b: b,
+				c: c,
+				optimization: Optimization::Max,
+				vars: vars,
+		}
+	}
+
+#[test]
+fn to_tableau_test () {
+	let expected = matrix![
+				1., -1., -1., 0., 0., 0.;
+    			0.,  2.,  1., 1., 0., 4.;
+    			0.,  1.,  2., 0., 1., 3.];
+	let lp = create_dummy_lp();
+	assert_matrix_eq!(SimplexSolver::convert_lp_to_tableau(&lp), expected);
+}
+
+#[test]
+fn is_optimal_test() {
+	let A = matrix![1., 0., 3., 1., 0.;
+                    3., 1., 3., 0., 1.];
+	let b = vec![6., 9.];
+	let c = vec![-4., -1., 1., 0., 0.]; // not optimal
+	let c2 = vec![4., 1., 1., 0., 0.]; // optimal
+	let mut vars = HashSet::new();
+	vars.insert("x1".to_string());
+	vars.insert("x2".to_string());
+	vars.insert("x3".to_string());
+	vars.insert("x4".to_string());
+	let Lp1 = Lp {
+			A: A.clone(),
+			b: b.clone(),
+			c: c,
+			optimization: Optimization::Max,
+			vars: vars.clone(),
+	};
+	let Lp2 = Lp {
+			A: A,
+			b: b,
+			c: c2,
+			optimization: Optimization::Max,
+			vars: vars,
+	};
+	let not_optimal = SimplexSolver::new(Lp1);
+	let optimal = SimplexSolver::new(Lp2);
+    assert_eq!(not_optimal.is_optimal(), false);
+    assert_eq!(optimal.is_optimal(), true);
+}
+
+	#[test]
+	fn is_basic_test() {
+	    let lp = create_dummy_lp();
+		let simplex_1 = SimplexSolver::new(lp);
+
+	    assert!(!simplex_1.is_basic(1));
+	    assert!(!simplex_1.is_basic(2));
+	    assert!(simplex_1.is_basic(3));
+	    assert!(simplex_1.is_basic(4));
+	}
+
+	#[test]
+	#[should_panic]
+	fn is_basic_z_test() {
+	    let lp = create_dummy_lp();
+		let simplex_1 = SimplexSolver::new(lp);
+
+	    assert!(simplex_1.is_basic(0));
+	}
+
+	#[test]
+	#[should_panic]
+	fn is_basic_rhs_test() {
+	    let lp = create_dummy_lp();
+		let simplex = SimplexSolver::new(lp);
+
+	    assert!(simplex.is_basic(5));
+	}
+
+	#[test]
+	fn get_basic_feasible_solution_test() {
+	    let lp = create_dummy_lp();
+		let simplex = SimplexSolver::new(lp);
+	    let bfs = vec![0., 0., 4., 3.];
+	    assert_eq!(simplex.get_basic_feasible_solution(), bfs);
+	}
+
+	#[test]
+	// TODO: Add test cases for None cases (when pivot element coeff <= 0)
+	fn calc_pivot_ratio_test() {
+	    let lp = create_dummy_lp();
+		let simplex = SimplexSolver::new(lp);
+
+	   	assert_eq!(simplex.calc_pivot_ratio(1, 1).unwrap(), 2.);
+	   	assert_eq!(simplex.calc_pivot_ratio(2, 1).unwrap(), 3.);
+	}
+
+	#[test]
+	fn choose_pivot_col_test() {
+	    let A = matrix![1., 0., 3., 1., 0.;
+	                    3., 1., 3., 0., 1.];
+		let b = vec![6., 9.];
+		let c = vec![-4., -1., 1., 0., 0.];
+		let mut vars = HashSet::new();
+		vars.insert("x1".to_string());
+		vars.insert("x2".to_string());
+		vars.insert("x3".to_string());
+		vars.insert("x4".to_string());
+		let lp = Lp {
+				A: A.clone(),
+				b: b.clone(),
+				c: c,
+				optimization: Optimization::Max,
+				vars: vars.clone(),
+		};
+		let simplex = SimplexSolver::new(lp);
+
+	   	assert_eq!(simplex.choose_pivot_col(), 1);
+	}
+
+	#[test]
+	fn choose_pivot_row_test() {
+	    let lp = create_dummy_lp();
+		let simplex = SimplexSolver::new(lp);
+
+	   	assert_eq!(simplex.choose_pivot_row(1), 1);
+	}
+
+	#[test]
+	fn normalize_pivot_test() {
+	    let lp = create_dummy_lp();
+		let mut simplex = SimplexSolver::new(lp);
+
+	    let expected_no_change = matrix![
+	    							1., -1., -1., 0., 0., 0.;
+	    							0.,  2.,  1., 1., 0., 4.;
+	    							0.,  1.,  2., 0., 1., 3.
+	    						];
+
+	    let expected_change = matrix![
+	    							1., -1.,  -1.,  0., 0., 0.;
+	    							0.,  1.,  0.5, 0.5, 0., 2.;
+	    							0.,  1.,   2.,  0., 1., 3.
+	    						];
+
+	    simplex.normalize_pivot(2, 1);
+	    assert_matrix_eq!(simplex.tableau, expected_no_change);
+
+	    simplex.normalize_pivot(1, 1);
+		assert_matrix_eq!(simplex.tableau, expected_change);    	
+	}
+
+	#[test]
+	fn eliminate_row_test() {
+	    let lp = create_dummy_lp();
+		let mut simplex = SimplexSolver::new(lp.clone());
+
+	    let expected_1 = matrix![
+	    						1.,  0.,  1., 0., 1., 3.;
+								0.,  2.,  1., 1., 0., 4.;
+								0.,  1.,  2., 0., 1., 3.
+	    					];
+
+	    simplex.eliminate_row(2, 1, 0);
+	    assert_matrix_eq!(simplex.tableau, expected_1);
+
+		simplex = SimplexSolver::new(lp);
+	    let expected_2 = matrix![
+	    						1., -1., -1., 0., 0., 0.;
+								0.,  2.,  1., 1., 0., 4.;
+								0.,  0.,  1.5, -0.5, 1., 1.
+	    					];
+
+		simplex.eliminate_row(1, 1, 2);
+	    assert_matrix_eq!(simplex.tableau, expected_2);
+	}
+
+	#[test]
+	fn pivot_test() {
+		let lp = create_dummy_lp();
+		let mut simplex = SimplexSolver::new(lp);
+
+		let expected = matrix![
+								1., 0., -0.5, 0.5, 0., 2.;
+								0., 1.,  0.5,   0.5, 0., 2.;
+								0., 0.,  1.5,  -0.5, 1., 1.
+							];
+
+		simplex.pivot(1, 1);
+		assert_matrix_eq!(simplex.tableau, expected);
+		assert_eq!(simplex.choose_pivot_row(2), 2);
+	}
+
+	#[test]
+	fn solve_test() {
+		let lp = create_dummy_lp();
+		let mut simplex = SimplexSolver::new(lp);
+		let expected = vec![5./3., 2./3., 0., 0.];
+		let solution = simplex.solve();
+		assert_eq!(solution.status, Status::Optimal);
+		assert_eq!(solution.values.unwrap(), expected);
+		assert_eq!(solution.objective.unwrap(), 7./3.);
+	}
+
+	// http://college.cengage.com/mathematics/larson/elementary_linear/4e/shared/downloads/c09s3.pdf
+	// Example 5
+	#[test]
+	fn case_study_test () {
+		let A = matrix![20., 6., 3.;
+						0., 1., 0.;
+						-1., -1., 1.;
+						-9., 1., 1.];
+		let b = vec![182., 10., 0., 0.];
+		let c = vec![100000., 40000., 18000.];
+		let mut vars = HashSet::new();
+		vars.insert("x1".to_string());
+		vars.insert("x2".to_string());
+		vars.insert("x3".to_string());
+		let lp = Lp {
+				A: A,
+				b: b,
+				c: c,
+				optimization: Optimization::Max,
+				vars: vars,
+		};
+		let simplex = SimplexSolver::new(lp);
+		let solution = simplex.solve();
+		let res = solution.values.unwrap();
+		let expected = vec![4., 10., 14.];
+		assert_eq!(solution.status, Status::Optimal);
+		for i in 0..res.len() {
+			assert_approx_eq!(res[i], expected[i]);
+		}
+		//assert_approx_eq!(solution.values.unwrap(), expected);
+		assert_eq!(solution.objective.unwrap(), 1052000.);
 	}
 }

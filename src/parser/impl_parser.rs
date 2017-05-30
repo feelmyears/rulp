@@ -20,15 +20,24 @@ enum Component {
 
 
 impl ParserBase for Parser {
+	/// Constructor for Components struct.
+	///
+	/// Takes a string input to be parsed.
 	fn parse_components_from_text(text: &str) -> Components {
 		let p = Parser::new();
 		p.get_components(text)
 	}
 
+	/// Constructor for Components struct.
+	/// 
+	/// Takes a file input to be read.
 	fn parse_components_from_file(file: &mut File) -> Components {
 		Self::parse_components_from_text(&read_file_contents(file))
 	}
 
+	/// Constructor for Lp struct.
+	///
+	/// Takes a string input to be parsed and a Builder struct.
 	fn lp_from_text<B: BuilderBase>(text: &str, mut builder: B) -> Lp {
 		let components = Self::parse_components_from_text(text);
 
@@ -45,6 +54,9 @@ impl ParserBase for Parser {
 		builder.build_lp()
 	}
 
+	/// Constructor for Lp struct.
+	///
+	/// Takes a file input to be read and a Builder struct.
 	fn lp_from_file<B: BuilderBase>(file: &mut File, mut builder: B) -> Lp {
 		Self::lp_from_text(&read_file_contents(file), builder)
 	}

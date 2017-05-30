@@ -1,3 +1,9 @@
+//! The builder module.
+//!
+//! This code handles most of the user-facing
+//! functionality of constructing a new linear
+//! programming problem.
+
 pub use std::collections::{HashMap, HashSet};
 pub use lp::Lp;
 
