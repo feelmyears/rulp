@@ -58,21 +58,51 @@ impl BuilderBase for Builder {
 	/// # extern crate rulp;
 	/// use rulp::lp::{Lp, Optimization};
 	/// use rulp::builder::*;
-	/// # fn main() {
-	/// 	let mut builder = Builder::new();
 	///
-	/// 	let vars = vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()].iter().map(|v| gen_var(v, 1.)).collect();
+	/// # fn gen_var(name: String, coeff: f64) -> Variable {
+	/// 	Variable {
+	/// 		name: name.to_string(),
+	/// 		coefficient: coeff
+	/// 	}
+	/// # }
+	///
+	/// # fn gen_constraint(variables: Vec<Variable>, constant: f64, relation: Relation) -> Constraint {
+	/// 	Constraint {
+	/// 		name: "foo".to_string(),
+	/// 		variables: variables,
+	/// 		constant: constant,
+	/// 		relation: relation
+	/// 	}
+	/// # }
+	///
+	/// # fn gen_objective(variables: Vec<Variable>) -> Objective {
+    /// 	Objective {
+	///			name: "bar".to_string(),
+	///			variables: variables,
+	///			maximize: false,
+	///		}
+	/// # }
+	///
+	/// # fn main() {
+	/// 	let mut lpb = Builder::new();
+	///
+	/// 	let vars: Vec<Variable> = vec![gen_var("a".to_string(), 1.), gen_var("b".to_string(), 1.), gen_var("c".to_string(), 1.), gen_var("d".to_string(), 1.)];
 	///	
+	///		let a = vec![gen_var("a".to_string(), 2.), gen_var("b".to_string(), -5.)];
+	///		let b = vec![gen_var("c".to_string(), -3.), gen_var("d".to_string(), -5.)];
+	///		let c = vec![gen_var("a".to_string(), 1.), gen_var("b".to_string(), 1.), gen_var("c".to_string(), 1.)];
+	///
 	/// 	let constraints = vec![
-	/// 		gen_constraint(vec![("a".to_string(), 2.), ("b".to_string(), -5.)], 10., Relation::LessThanOrEqual),
-	/// 		gen_constraint(vec![("c".to_string(), -3.), ("d".to_string(), -5.)], 15., Relation::GreaterThanOrEqual),
-	/// 		gen_constraint(vec![("a".to_string(), 1.), ("b".to_string(), 1.), ("c".to_string(), 1.)], 33., Relation::Equal),
+	///			gen_constraint(a, 10., Relation::LessThanOrEqual),
+	///			gen_constraint(b, 15., Relation::GreaterThanOrEqual),
+	///			gen_constraint(c, 33., Relation::Equal),
 	/// 	];
 	///
-	/// 	let objective = gen_constraint(vec![("a".to_string(), 1.), ("b".to_string(), 2.), ("c".to_string(), 3.), ("d".to_string(), 4.)], 0., Relation::LessThanOrEqual);
+	///		let obj_vec = vec![gen_var("a".to_string(), 1.), gen_var("b".to_string(), 2.), gen_var("c".to_string(), 3.), gen_var("d".to_string(), 4.)];
+	/// 	let objective = gen_objective(obj_vec);
 	///
-	/// 	for &v in &vars {
-	/// 		builder.add_variable(&v);
+	/// 	for v in vars {
+	/// 		lpb.add_variable(v);
 	/// 	}
 	///
 	/// 	for c in constraints {
@@ -80,24 +110,24 @@ impl BuilderBase for Builder {
 	/// 	}
 	///
 	///
-	/// 		lpb.add_objective(objective);
+	/// 	lpb.add_objective(objective);
 	///
-	/// 		let lp = lpb.build_lp();
+	/// 	let lp = lpb.build_lp();
 	///
-	/// 		let expected_A = matrix![
+	/// 	let expected_A = matrix![
 	/// 			2.0,  -5.0,   0.0,   0.0,   1.0,   0.0;
 	///   			0.0,   0.0,  -3.0,  -5.0,   0.0,  -1.0;
 	///   			1.0,   1.0,   1.0,   0.0,   0.0,   0.0
-	/// 		];
+	/// 	];
 	///
-	/// 		let expected_b = vec![10., 15., 33.];
-	/// 		let expected_c = vec![1., 2., 3., 4., 0., 0., 0.];
+	/// 	let expected_b = vec![10., 15., 33.];
+	/// 	let expected_c = vec![1., 2., 3., 4., 0., 0.];
 	///
-	/// 		assert_matrix_eq!(lp.A, expected_A);
-	/// 		assert_eq!(lp.b, expected_b);
-	/// 		assert_eq!(lp.c, expected_c);
-	/// 		assert_eq!(lp.optimization, Optimization::Min);
-	/// 	# }
+	/// 	assert_matrix_eq!(lp.A, expected_A);
+	/// 	assert_eq!(lp.b, expected_b);
+	/// 	assert_eq!(lp.c, expected_c);
+	/// 	assert_eq!(lp.optimization, Optimization::Min);
+	/// # }
 	/// ```
 	fn build_lp(&mut self) -> Lp {
 		//self.convert_to_standard_form();

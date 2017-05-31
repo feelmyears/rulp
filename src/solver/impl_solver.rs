@@ -51,11 +51,11 @@ impl SolverBase for SimplexSolver {
 	/// };
 	///
 	/// let simplex = SimplexSolver::new(lp);
-	/// let expected = vec![5./3., 2./3., 0., 0.];
+	/// let expected = vec![0., 0., 4., 3.];
 	/// let solution = simplex.solve();
 	/// assert_eq!(solution.status, Status::Optimal);
 	/// assert_eq!(solution.values.unwrap(), expected);
-	/// assert_eq!(solution.objective.unwrap(), 7./3.);
+	/// assert_eq!(solution.objective.unwrap(), 0.);
 	/// # }
 	/// ```
 
