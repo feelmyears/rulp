@@ -10,4 +10,5 @@ pub mod lp;
 pub mod parser;
 pub mod solver;
 
+#[allow(dead_code)]	// print_matrix mainly for debugging
 mod utils;

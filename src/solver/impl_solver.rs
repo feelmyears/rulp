@@ -57,11 +57,11 @@ impl SolverBase for SimplexSolver {
 	/// # }
 	/// ```
 	fn solve(&self) -> Solution {
-		println!("Solver called");
+		// println!("Solver called");
 		let mut local = SimplexSolver::new(self.lp.clone());
 		let has_bfs = local.find_bfs();
 
-		print_matrix(&local.tableau);
+		// print_matrix(&local.tableau);
 
 		if !has_bfs {
 			return Solution {
@@ -74,7 +74,7 @@ impl SolverBase for SimplexSolver {
 
 		// Local has a basic feasible solution so we can optimize
 		let _ = local.optimize();
-		print_matrix(&local.tableau);
+		// print_matrix(&local.tableau);
 		if local.is_optimal() {
 			let coeff;
 			match &self.lp.optimization {
@@ -304,18 +304,18 @@ impl SimplexSolver {
 
 	// Can only be called once a BFS has been established
 	fn optimize(&mut self) -> usize {
-		println!("Beginning optimization actually");
+		// println!("Beginning optimization actually");
 		let mut iterations = 0;
 		while !(self.is_optimal()) {
-			println!(">>> Iteration {}", iterations);
-			print_matrix(&self.tableau);
+			// println!(">>> Iteration {}", iterations);
+			// print_matrix(&self.tableau);
 			let pivot_col = self.choose_pivot_col();
-			println!("Pivot column: {:?} ({} var entering)", pivot_col, pivot_col - 1);
+			// println!("Pivot column: {:?} ({} var entering)", pivot_col, pivot_col - 1);
 			let pivot_row = self.choose_pivot_row(pivot_col);
-			println!("Pivot row: {:?} ({} var leaving)", pivot_row, pivot_row - 1);
+			// println!("Pivot row: {:?} ({} var leaving)", pivot_row, pivot_row - 1);
 			self.pivot(pivot_row, pivot_col);
-			print_matrix(&self.tableau);
-			println!("<<< Iteration {}", iterations);
+			// print_matrix(&self.tableau);
+			// println!("<<< Iteration {}", iterations);
 			iterations += 1;
 		}
 
@@ -329,15 +329,15 @@ impl SimplexSolver {
 	}
 
 	fn find_bfs(&mut self) -> bool {
-		println!("find_bfs");
+		// println!("find_bfs");
 		unsafe {
 			match self.find_unspanned_rows() {
 				None => {															// No unspanned rows, can proceed to look for bfs
-					println!("No unspanned rows found.");
+					// println!("No unspanned rows found.");
 				},	
 				Some(unspanned_rows) => {											// Unspanned rows, need to create Phase I problem
-					println!("!! Unspanned rows found. Entering Phase I");
-					println!("{:?}", &unspanned_rows);
+					// println!("!! Unspanned rows found. Entering Phase I");
+					// println!("{:?}", &unspanned_rows);
 					let mut phase_one = self.generate_phase_one(&unspanned_rows);
 					phase_one.find_bfs();
 					let _ = phase_one.optimize();
@@ -356,14 +356,14 @@ impl SimplexSolver {
 									*phase_one.tableau.get_unchecked([row, phase_one.tableau.cols() - 1]);
 						}
 					}
-					println!("!! Leaving Phase I");
+					// println!("!! Leaving Phase I");
 				}
 			}
 
-			print_matrix(&self.tableau);
+			// print_matrix(&self.tableau);
 			self.write_obj_in_nb_vars();											// Tableau fully spanned, now want to write objective 
 																					// function in terms of non-basic vars
-			print_matrix(&self.tableau);
+			// print_matrix(&self.tableau);
 			true
 		}
 	}
@@ -403,7 +403,7 @@ impl SimplexSolver {
 	}
 
 	fn write_obj_in_nb_vars(&mut self) {
-		println!("Starting write_obj_in_nb_vars");
+		// println!("Starting write_obj_in_nb_vars");
 		unsafe {
 			let mut obj_function = Vec::with_capacity(self.tableau.cols());			// Keeping same size as top row to make indexing simpler
 																					// but first and last items are irrelevant 
