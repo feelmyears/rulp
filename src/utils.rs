@@ -8,9 +8,9 @@ pub fn print_matrix(mat: &Matrix<f64>) {
 		println!("");
 		for r in 0 .. mat.rows() {
 			for c in 0 .. mat.cols() - 1{
-				print!("{:>5.1}, ", *mat.get_unchecked([r, c]));
+				print!("{:>6.3}, ", *mat.get_unchecked([r, c]));
 			}
-			println!("{:>5.1}", *mat.get_unchecked([r, mat.cols() -1]));
+			println!("{:>6.3}", *mat.get_unchecked([r, mat.cols() -1]));
 		}
 		println!("");	
 	}

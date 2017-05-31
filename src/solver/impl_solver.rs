@@ -128,12 +128,14 @@ impl SimplexSolver {
 	}
 
 	fn is_optimal(&self) -> bool {
-		let obj_coeffs = &self.tableau.row(OBJ_COEFFS_ROW_INDEX);
-		for &coeff in obj_coeffs.iter() {
-			if coeff < 0. {
-				return false;
+		unsafe{
+			for col in 1 .. self.tableau.cols() - 1{
+				if *self.tableau.get_unchecked([0, col]) < 0. {
+					return false;
+				}
 			}
 		}
+
 		return true
 	}
 
@@ -344,7 +346,7 @@ impl SimplexSolver {
 					let _ = phase_one.optimize();
 					
 					let phase_one_obj = phase_one.get_objective();					// If the objective of the optmized Phase I problem
-					if phase_one_obj != 0. {										// is non-zero, then no bfs exists (problem is infeasible)
+					if phase_one_obj > 0. {										// is non-zero, then no bfs exists (problem is infeasible)
 						return false
 					} else {														// Bfs exists. Converting to Phase II by copying over
 						for row in 1 .. self.tableau.rows() {						// new bfs
