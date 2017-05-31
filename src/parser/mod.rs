@@ -8,7 +8,7 @@ use self::regex::Regex;
 
 use lp::Lp;
 use std::fs::File;
-use builder::{Variable, Constraint, Objective, Builder, BuilderBase};
+use builder::{Variable, Constraint, Objective, BuilderBase};
 
 
 mod impl_parser;

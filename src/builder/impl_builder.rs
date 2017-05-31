@@ -1,5 +1,5 @@
 use lp::{Lp, Optimization};
-use rulinalg::matrix::{Matrix, BaseMatrix};
+use rulinalg::matrix::{Matrix};
 use super::*;
 
 impl BuilderBase for Builder {
@@ -36,7 +36,7 @@ impl BuilderBase for Builder {
 
 		let curr_objective = self.objective.take();
 		match curr_objective {
-			Some(objective) => {
+			Some(_) => {
 				panic!("Attempting to add a second objective!");
 			},
 			None => {
@@ -131,8 +131,6 @@ impl BuilderBase for Builder {
 	/// ```
 	fn build_lp(&mut self) -> Lp {
 		let num_artificial_vars = self.convert_to_standard_form();
-		let num_variables = self.variables.len();
-		let num_constraints = self.constraints.len();
 		let A = self.generate_A();
 		let b = self.generate_b();
 		let (c, opt) = self.generate_c();

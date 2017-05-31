@@ -41,7 +41,8 @@ impl ParserBase for Parser {
 	///
 	/// # Examples
 	/// ```
-	/// # #[macro_use] extern crate rulinalg;
+	/// # #[macro_use]
+	/// extern crate rulinalg;
 	/// # extern crate rulp;
 	/// use rulp::parser::*;
 	/// use rulp::builder::*;

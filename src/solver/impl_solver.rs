@@ -1,10 +1,8 @@
 use super::*;
 use lp::{Lp, Optimization};
-use rulinalg::matrix::{Matrix, BaseMatrixMut};
+use rulinalg::matrix::{BaseMatrixMut, BaseMatrix};
 use std::f64::INFINITY;
 use utils::print_matrix;
-
-const OBJ_COEFFS_ROW_INDEX: usize = 0;
 
 impl SolverBase for SimplexSolver {
 	/// Constructor for SolverBase struct.
@@ -75,10 +73,10 @@ impl SolverBase for SimplexSolver {
 		}
 
 		// Local has a basic feasible solution so we can optimize
-		let iterations = local.optimize();
+		let _ = local.optimize();
 		print_matrix(&local.tableau);
 		if local.is_optimal() {
-			let mut coeff = 1.;
+			let coeff;
 			match &self.lp.optimization {
 				&Optimization::Max => coeff = 1.,
 				&Optimization::Min => coeff = -1.,
@@ -145,16 +143,14 @@ impl SimplexSolver {
 
 	fn get_basic_feasible_solution(&self) -> Vec<f64> {
 		let mut bfs = vec![];
-		let mut basic_ct = 0;
 		let rhs_index = self.tableau.cols() - 1;
 
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if self.is_basic(i) {
 					let row = self.get_basic_row(i);
-					let val = *self.tableau.get_unchecked([row, rhs_index]);//([basic_ct + 1, rhs_index]);
+					let val = *self.tableau.get_unchecked([row, rhs_index]);
 					bfs.push(val);
-					basic_ct += 1;
 				} else {
 					bfs.push(0.0);
 				}
@@ -332,22 +328,6 @@ impl SimplexSolver {
 		}
 	}
 
-	fn check_degenerate(&self) -> bool {
-		let mut basics: Vec<usize> = vec![];
-		for i in 1 .. self.tableau.cols() - 1 {
-			if self.is_basic(i) {
-				basics.push(i);
-			}
-		}
-		let basic_soln = self.get_basic_feasible_solution();
-		for basic in basics {
-			if basic_soln[basic-1] == 0. { // subtract one to account for z in tableau, not in basic soln
-				return true;
-			}
-		}
-		return false;
-	}
-
 	fn find_bfs(&mut self) -> bool {
 		println!("find_bfs");
 		unsafe {
@@ -467,7 +447,7 @@ impl SimplexSolver {
 #[cfg(test)]
 mod solve_tests {
 	use super::*;
-	use std::collections::HashSet;
+	use assert_approx_eq::*;
 
 	#[test]
 	fn to_tableau_test () {

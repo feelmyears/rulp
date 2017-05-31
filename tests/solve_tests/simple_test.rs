@@ -1,8 +1,8 @@
-#[allow(unused_imports)]
+// #[allow(unused_imports)]
 use rulp::builder::{Builder, BuilderBase};
 use rulp::parser::{Parser, ParserBase};
 use rulp::solver::{SolverBase, SimplexSolver};
-use rulp::lp::{Lp, Optimization};
+// use rulp::lp::{Lp, Optimization};
 use rulp::solver::Status;
 use assert_approx_eq::*;
 
@@ -102,24 +102,4 @@ fn full_case_study_test () {
 		assert_approx_eq!(res[i], expected[i]);
 	}
 	assert_eq!(solution.objective.unwrap(), 1052000.);
-}
-
-fn create_dummy_lp() -> Lp {
-	let A = matrix![2., 1., 1., 0.;
-					1., 2., 0., 1.];
-	let b = vec![4., 3.];
-	let c = vec![-1., -1., 0., 0.];
-	let mut vars = vec![];
-	vars.push("x1".to_string());
-	vars.push("x2".to_string());
-	vars.push("x3".to_string());
-	vars.push("x4".to_string());
-	Lp {
-			A: A,
-			b: b,
-			c: c,
-			optimization: Optimization::Max,
-			vars: vars,
-			num_artificial_vars: 0
-	}
 }	

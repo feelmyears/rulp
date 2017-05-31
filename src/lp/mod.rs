@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use rulinalg::matrix::{BaseMatrix, Matrix};
 use std::fmt;
 
@@ -29,7 +28,7 @@ impl fmt::Display for Lp {
 
     		writeln!(f, "").unwrap();
 
-    		for c in 0 .. self.A.cols() {
+    		for _ in 0 .. self.A.cols() {
     			write!(f, " - - - ").unwrap();
     		}
     		writeln!(f, "").unwrap();

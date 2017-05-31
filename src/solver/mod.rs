@@ -5,8 +5,7 @@
 //! This is implemented via the Simplex Tableau
 //! method.
 use std::fmt;
-use rulinalg::matrix::{Matrix, BaseMatrix};
-use assert_approx_eq::*;
+use rulinalg::matrix::{Matrix};
 use lp::Lp;
 
 mod impl_solver;
