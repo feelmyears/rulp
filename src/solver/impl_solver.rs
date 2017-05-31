@@ -147,7 +147,8 @@ impl SimplexSolver {
 		unsafe {
 			for i in 1 .. self.tableau.cols() - 1 {
 				if self.is_basic(i) {
-					let val = *self.tableau.get_unchecked([basic_ct + 1, rhs_index]);
+					let row = self.get_basic_row(i);
+					let val = *self.tableau.get_unchecked([row, rhs_index]);//([basic_ct + 1, rhs_index]);
 					bfs.push(val);
 					basic_ct += 1;
 				} else {
@@ -156,6 +157,18 @@ impl SimplexSolver {
 			}
 		}
 		return bfs;
+	}
+
+	fn get_basic_row(&self, col: usize) -> usize {
+		let mut ret = 1;
+		unsafe {
+			for row in 1 .. self.tableau.rows() {
+				if *self.tableau.get_unchecked([row, col]) == 1. {
+					ret = row;
+				}
+			}
+		}
+		return ret;
 	}
 
 	fn is_basic(&self, col: usize) -> bool {

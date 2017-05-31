@@ -29,7 +29,7 @@ fn simple_minimize_test() {
 	print!("{:?}", &solution);
 
 	let expected_sol = vec![7.5, 4.5];
-	let sol = solution.values.unwrap();
+	let sol = solution.values.unwrap(); // returning [7.5, 0.3, 0, 4.5]
 	for i in 0 .. expected_sol.len() {
 		assert_approx_eq!(expected_sol[i], sol[i]);
 	}
@@ -64,7 +64,7 @@ fn simple_minimize_test_v2() {
 	print!("{:?}", &solution);
 
 	let expected_sol = vec![7.5, 4.5];
-	let sol = solution.values.unwrap();
+	let sol = solution.values.unwrap(); // unwraps a None right now
 	for i in 0 .. expected_sol.len() {
 		assert_approx_eq!(expected_sol[i], sol[i]);
 	}
