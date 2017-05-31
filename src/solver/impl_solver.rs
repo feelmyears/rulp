@@ -58,7 +58,6 @@ impl SolverBase for SimplexSolver {
 	/// assert_eq!(solution.objective.unwrap(), 0.);
 	/// # }
 	/// ```
-
 	fn solve(&self) -> Solution {
 		println!("Solver called");
 		let mut local = SimplexSolver::new(self.lp.clone());

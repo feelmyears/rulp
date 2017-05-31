@@ -38,6 +38,48 @@ impl ParserBase for Parser {
 	/// Constructor for Lp struct.
 	///
 	/// Takes a string input to be parsed and a Builder struct.
+	///
+	/// # Examples
+	/// ```
+	/// # #[macro_use] extern crate rulinalg;
+	/// # extern crate rulp;
+	/// use rulp::parser::*;
+	/// use rulp::builder::*;
+	/// use rulp::lp::Optimization;
+	///
+	/// # fn main() {
+	///		let text_problem = "	
+	///			var television;
+	///			var newspaper;
+	///			var radio;
+	///
+	///			maximize objective: 100000.*television + 40000.*newspaper + 18000.*radio;
+	///
+	///			subject to constraint_1: 20.*television + 6.*newspaper + 3.*radio <= 182.;
+	///			subject to constraint_2: newspaper <= 10.;
+	///			subject to constraint_3: -1.*television + -1.*newspaper + radio <= 0.;
+	///			subject to constraint_4: -9.*television + newspaper + radio <= 0.;
+	///
+	///		";
+	///		let builder = Builder::new();
+	///		let lp = Parser::lp_from_text(text_problem, builder);
+	///
+	/// 	let expected_A = matrix![
+	/// 			20.0,   6.0,   3.0, 1.0, 0., 0., 0.;
+	///   			0.0,   1.0,   0.0, 0., 1.0, 0., 0.;
+	///			   -1.0,  -1.0,   1.0, 0., 0., 1.0, 0.;
+	///   		   -9.0,   1.0,   1.0, 0., 0., 0., 1.0
+	/// 	];
+	///
+	/// 	let expected_b = vec![182., 10., 0., 0.];
+	/// 	let expected_c = vec![100000., 40000., 18000., 0., 0., 0., 0.];
+	///
+	/// 	assert_matrix_eq!(lp.A, expected_A);
+	/// 	assert_eq!(lp.b, expected_b);
+	/// 	assert_eq!(lp.c, expected_c);
+	/// 	assert_eq!(lp.optimization, Optimization::Max);
+	/// # }
+	/// ```
 	fn lp_from_text<B: BuilderBase>(text: &str, mut builder: B) -> Lp {
 		let components = Self::parse_components_from_text(text);
 
