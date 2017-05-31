@@ -1,0 +1,5 @@
+
+Objective: 1052000
+television: 3.9999999999999996
+newspaper: 10
+radio: 14.000000000000002
