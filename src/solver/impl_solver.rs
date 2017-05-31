@@ -62,7 +62,7 @@ impl SolverBase for SimplexSolver {
 		let has_bfs = local.find_bfs();
 
 
-		print_matrix(&local.tableau);
+		// print_matrix(&local.tableau);
 
 		if !has_bfs {
 			return Solution {
@@ -348,7 +348,7 @@ impl SimplexSolver {
 					let _ = phase_one.optimize();
 					
 					let phase_one_obj = phase_one.get_objective();					// If the objective of the optmized Phase I problem
-					print_matrix(&phase_one.tableau);
+					// print_matrix(&phase_one.tableau);
 					if !(  relative_eq!(phase_one_obj,  0., epsilon = 0.0000001) 	// is non-zero, then no bfs exists (problem is infeasible)
 						|| relative_eq!(phase_one_obj, -0., epsilon = 0.0000001)) { // kinda hacky way of testing due to f64 precision											
 						return false

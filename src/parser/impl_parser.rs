@@ -252,3 +252,61 @@ impl Parser {
 		}
 	}
 }
+
+
+#[cfg(test)]
+mod LPParser_tests {
+	use super::*;
+
+	#[test]
+	fn line_type_test() {
+		let p = Parser::new();
+
+		let comment = "# This is a comment;";
+		let variable = "var a;";
+		let min_objective= "minimize obj: 3*a;";
+		let max_objective= "maximize obj: 3*a;";
+		let constraint = "subject to foo_constraint: a == 10;";
+
+		assert_eq!(p.get_line_type(comment), LineType::Comment);
+		assert_eq!(p.get_line_type(variable), LineType::Variable);
+		assert_eq!(p.get_line_type(min_objective), LineType::Objective);
+		assert_eq!(p.get_line_type(max_objective), LineType::Objective);
+		assert_eq!(p.get_line_type(constraint), LineType::Constraint);
+	}
+
+
+	#[test]
+	fn parse_variable_declaration_test() {
+		let p = Parser::new();
+
+		let variable = "var a;";
+		let expected = Variable {
+			name: "a".to_string(),
+			coefficient: 0.,
+		};
+
+		assert_eq!(p.parse_variable_declaration(variable), expected);
+	}
+
+	#[test]
+	fn parse_vars_test() {
+		let p = Parser::new();
+
+		let data = "3.5*a + 1.5*b + -0.5*c";
+		let expected = vec![
+			generate_var("a".to_string(), 3.5),
+			generate_var("b".to_string(), 1.5),
+			generate_var("c".to_string(), -0.5),
+		];
+
+		assert_eq!(p.parse_objective_vars(data), expected);
+	}
+
+	fn generate_var(name: String, coeff: f64) -> Variable {
+		Variable {
+			name: name,
+			coefficient: coeff,
+		}
+	}
+}
