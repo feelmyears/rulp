@@ -61,7 +61,8 @@ impl SolverBase for SimplexSolver {
 		let mut local = SimplexSolver::new(self.lp.clone());
 		let has_bfs = local.find_bfs();
 
-		// print_matrix(&local.tableau);
+
+		print_matrix(&local.tableau);
 
 		if !has_bfs {
 			return Solution {
@@ -73,28 +74,28 @@ impl SolverBase for SimplexSolver {
 		}
 
 		// Local has a basic feasible solution so we can optimize
-		let _ = local.optimize();
-		// print_matrix(&local.tableau);
-		if local.is_optimal() {
-			let coeff;
-			match &self.lp.optimization {
-				&Optimization::Max => coeff = 1.,
-				&Optimization::Min => coeff = -1.,
-			}
+		let bounded = local.optimize();
+
+		if !bounded {
 			return Solution {
-						lp: self.lp.clone(),
-		    			values: Some(local.get_basic_feasible_solution()),
-		    			objective: Some(local.get_objective() * coeff),
-		    			status: Status::Optimal
-			};
-		} else {
-			return Solution {
-						lp: self.lp.clone(),
-		    			values: None,
-		    			objective: None,
-		    			status: Status::Degenerate
+				lp: self.lp.clone(),
+    			values: None,
+    			objective: None,
+    			status: Status::Unbounded
     		};
 		}
+
+		let coeff;
+		match &self.lp.optimization {
+			&Optimization::Max => coeff = 1.,
+			&Optimization::Min => coeff = -1.,
+		}
+		return Solution {
+					lp: self.lp.clone(),
+	    			values: Some(local.get_basic_feasible_solution()),
+	    			objective: Some(local.get_objective() * coeff),
+	    			status: Status::Optimal
+		};
 	}
 }
 
@@ -225,10 +226,10 @@ impl SimplexSolver {
 			}
 		}
 		
-		// min_row cannot be 0 because row 0 is not a constraint
-		if min_row == 0 {
-			panic!("No pivot row chosen!");
-		}
+		// // min_row cannot be 0 because row 0 is not a constraint
+		// if min_row == 0 {
+		// 	panic!("No pivot row chosen!");
+		// }
 
 		min_row
 	}
@@ -303,23 +304,27 @@ impl SimplexSolver {
 	}
 
 	// Can only be called once a BFS has been established
-	fn optimize(&mut self) -> usize {
+	fn optimize(&mut self) -> bool {
 		// println!("Beginning optimization actually");
-		let mut iterations = 0;
+		// let mut iterations = 0;
 		while !(self.is_optimal()) {
 			// println!(">>> Iteration {}", iterations);
 			// print_matrix(&self.tableau);
 			let pivot_col = self.choose_pivot_col();
 			// println!("Pivot column: {:?} ({} var entering)", pivot_col, pivot_col - 1);
 			let pivot_row = self.choose_pivot_row(pivot_col);
+			if pivot_row == 0 {			// Unbounded
+				return false
+			}
 			// println!("Pivot row: {:?} ({} var leaving)", pivot_row, pivot_row - 1);
 			self.pivot(pivot_row, pivot_col);
 			// print_matrix(&self.tableau);
 			// println!("<<< Iteration {}", iterations);
-			iterations += 1;
+			// iterations += 1;
 		}
 
-		iterations
+		true
+		// iterations
 	}
 
 	fn get_objective(&self) -> f64 {
@@ -343,7 +348,9 @@ impl SimplexSolver {
 					let _ = phase_one.optimize();
 					
 					let phase_one_obj = phase_one.get_objective();					// If the objective of the optmized Phase I problem
-					if phase_one_obj > 0. {										// is non-zero, then no bfs exists (problem is infeasible)
+					print_matrix(&phase_one.tableau);
+					if !(  relative_eq!(phase_one_obj,  0., epsilon = 0.0000001) 	// is non-zero, then no bfs exists (problem is infeasible)
+						|| relative_eq!(phase_one_obj, -0., epsilon = 0.0000001)) { // kinda hacky way of testing due to f64 precision											
 						return false
 					} else {														// Bfs exists. Converting to Phase II by copying over
 						for row in 1 .. self.tableau.rows() {						// new bfs

@@ -108,3 +108,32 @@ fn radiation_file_test() {
 	}
 	assert_approx_eq!(5.25, solution.objective.unwrap());
 }
+
+
+#[test]
+fn unbounded_file_test() {
+	let builder = Builder::new();
+	let mut input_file = File::open("./tests/test_files/unbounded_example.lp").unwrap();
+	let lp = Parser::lp_from_file(&mut input_file, builder);
+
+	let solver = SimplexSolver::new(lp);
+	let solution = solver.solve();
+
+	assert_eq!(solution.objective, None);
+	assert_eq!(solution.values, None);
+	assert_eq!(solution.status, Status::Unbounded);
+}
+
+#[test]
+fn infeasible_file_test() {
+	let builder = Builder::new();
+	let mut input_file = File::open("./tests/test_files/infeasible_example.lp").unwrap();
+	let lp = Parser::lp_from_file(&mut input_file, builder);
+
+	let solver = SimplexSolver::new(lp);
+	let solution = solver.solve();
+
+	assert_eq!(solution.objective, None);
+	assert_eq!(solution.values, None);
+	assert_eq!(solution.status, Status::Infeasible);
+}

@@ -14,7 +14,6 @@ mod impl_solver;
 pub enum Status {
 	Optimal,
 	Infeasible,
-	Degenerate,
 	Unbounded
 }
 
