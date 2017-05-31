@@ -37,6 +37,41 @@ fn simple_minimize_test() {
 }
 
 #[test]
+fn simple_minimize_test_v2() {
+	let text_problem = "	
+		# Number of dose units from beam 1;
+		var x_1 >= 0;
+		# Number of dose units from beam 2;
+		var x_2 >= 0;
+
+		# Minimize radiation dosage units to healthy anatomy (in kilorads);
+		minimize h_a_rad: 0.4*x_1 + 0.5*x_2;
+
+		# Exposure for critical tissues should not exceed 2.7 kilorads;
+		subject to critical_tissue_rad: 0.3*x_1 + 0.1*x_2 <= 2.7;
+		# Exposure for center of tumor should be at least 6 kilorads;
+		subject to tumor_center_rad: 0.6*x_1 + 0.4*x_2 >= 6;
+		# Exposure for tumor region should be exactly 6 kilorads;
+		subject to tumor_region_rad: 0.5*x_1 + 0.5*x_2 = 6;
+		";
+
+	let builder = Builder::new();
+	let lp = Parser::lp_from_text(text_problem, builder);
+	println!("{}", lp);
+	let solver = SimplexSolver::new(lp);
+	let solution = solver.solve();
+	print!("finished solving");
+	print!("{:?}", &solution);
+
+	let expected_sol = vec![7.5, 4.5];
+	let sol = solution.values.unwrap();
+	for i in 0 .. expected_sol.len() {
+		assert_approx_eq!(expected_sol[i], sol[i]);
+	}
+	assert_approx_eq!(5.25, solution.objective.unwrap());
+}
+
+#[test]
 fn full_case_study_test () {
 	let text_problem = "	
 		# This is a problem;

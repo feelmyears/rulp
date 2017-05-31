@@ -337,7 +337,7 @@ impl SimplexSolver {
 					println!("No unspanned rows found.");
 				},	
 				Some(unspanned_rows) => {											// Unspanned rows, need to create Phase I problem
-					println!("Unspanned rows found. Entering Phase I");
+					println!("!! Unspanned rows found. Entering Phase I");
 					println!("{:?}", &unspanned_rows);
 					let mut phase_one = self.generate_phase_one(&unspanned_rows);
 					phase_one.find_bfs();
@@ -357,11 +357,14 @@ impl SimplexSolver {
 									*phase_one.tableau.get_unchecked([row, phase_one.tableau.cols() - 1]);
 						}
 					}
+					println!("!! Leaving Phase I");
 				}
 			}
 
+			print_matrix(&self.tableau);
 			self.write_obj_in_nb_vars();											// Tableau fully spanned, now want to write objective 
 																					// function in terms of non-basic vars
+			print_matrix(&self.tableau);
 			true
 		}
 	}
@@ -374,7 +377,9 @@ impl SimplexSolver {
 											new_cols, 
 											vec![0.; new_rows * new_cols]);
 
-			for row in 0 .. self.tableau.rows() { 									// Copying data from current tableau. RHS no longer in same
+			*phase_one.get_unchecked_mut([0, 0]) = 1.;
+
+			for row in 1 .. self.tableau.rows() { 									// Copying data from current tableau. RHS no longer in same
 				for col in 0 .. self.tableau.cols() - 1 { 							// col so skipping for now
 					*phase_one.get_unchecked_mut([row, col]) = *self.tableau.get_unchecked([row, col]);
 				}
@@ -402,8 +407,8 @@ impl SimplexSolver {
 		unsafe {
 			let mut obj_function = Vec::with_capacity(self.tableau.cols());			// Keeping same size as top row to make indexing simpler
 																					// but first and last items are irrelevant 
-			
-			for col in 0 .. self.tableau.cols() {									
+			obj_function.push(1.);
+			for col in 1 .. self.tableau.cols() {									
 				obj_function.push(*self.tableau.get_unchecked([0, col]));			// Saving the value of the objective function for each var/col
 				*self.tableau.get_unchecked_mut([0, col]) = 0.;						// Then setting the entry to 0
 			}
@@ -425,12 +430,14 @@ impl SimplexSolver {
 						panic!("Row cannot be 0");									// Should never happen, but cant hurt to check
 					}
 
-					for c in 1 .. self.tableau.cols() - 1 {							// Iterate through non-basic variables again and 
-						if !(self.is_basic(c)) {									// add the product of their coeff and the non-basic var coeff
+					for c in 1 .. self.tableau.cols() {							// Iterate through non-basic variables again and 
+						if c == (self.tableau.cols() - 1) || !self.is_basic(c) {									// add the product of their coeff and the non-basic var coeff
 							let coeff = *self.tableau.get_unchecked([row, c]);		// to the objective function 
 							*self.tableau.get_unchecked_mut([0, c]) += coeff * obj_coeff;	
 						}
 					}
+
+
 				}
 			}
 		}
