@@ -79,10 +79,15 @@ impl SolverBase for SimplexSolver {
 		let iterations = local.optimize();
 		print_matrix(&local.tableau);
 		if local.is_optimal() {
+			let mut coeff = 1.;
+			match &self.lp.optimization {
+				&Optimization::Max => coeff = 1.,
+				&Optimization::Min => coeff = -1.,
+			}
 			return Solution {
 						lp: self.lp.clone(),
 		    			values: Some(local.get_basic_feasible_solution()),
-		    			objective: Some(local.get_objective()),
+		    			objective: Some(local.get_objective() * coeff),
 		    			status: Status::Optimal
 			};
 		} else {
@@ -324,7 +329,7 @@ impl SimplexSolver {
 
 	fn get_objective(&self) -> f64 {
 		unsafe {
-			*self.tableau.get_unchecked([0, self.tableau.cols() - 1])
+			return *self.tableau.get_unchecked([0, self.tableau.cols() - 1]);
 		}
 	}
 
@@ -419,6 +424,7 @@ impl SimplexSolver {
 	}
 
 	fn write_obj_in_nb_vars(&mut self) {
+		println!("Starting write_obj_in_nb_vars");
 		unsafe {
 			let mut obj_function = Vec::with_capacity(self.tableau.cols());			// Keeping same size as top row to make indexing simpler
 																					// but first and last items are irrelevant 

@@ -36,7 +36,7 @@ fn simple_minimize_test() {
 	assert_approx_eq!(5.25, solution.objective.unwrap());
 }
 
-#[test]
+/*#[test]
 fn simple_minimize_test_v2() {
 	let text_problem = "	
 		# Number of dose units from beam 1;
@@ -69,7 +69,7 @@ fn simple_minimize_test_v2() {
 		assert_approx_eq!(expected_sol[i], sol[i]);
 	}
 	assert_approx_eq!(5.25, solution.objective.unwrap());
-}
+}*/
 
 #[test]
 fn full_case_study_test () {
