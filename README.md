@@ -21,7 +21,7 @@ rulp="0.1.0"
 ```
 And then import the library using:
 ```
-extern crate rulinalg;
+extern crate rulp;
 ```
 Then import the modules and you're done!
 ```
