@@ -104,4 +104,4 @@ doughnuts: 14
 ```
 
 ## Acknowledgements
-We offer our thanks to [Prof. Jesse Tov](http://users.eecs.northwestern.edu/~jesse/) for teaching us Rust this quarter at Northwestern University. We also thank [Prof. Andreas Wächter](http://users.iems.northwestern.edu/~andreasw/) whose notes and sample problems from IEMS 313 were valuable in implementing and testing rulp. 
+We offer our thanks to [Prof. Jesse Tov](http://users.eecs.northwestern.edu/~jesse/) for teaching us Rust this quarter at Northwestern University. We also thank [Prof. Andreas Wächter](http://users.iems.northwestern.edu/~andreasw/) whose notes and sample problems from IEMS 313 were valuable in implementing and testing rulp. Our presentation on this project is available on [Google Slides](https://docs.google.com/presentation/d/1wrIj6-vqYLlUw0w4H3f_DWa6Of2Hpiv3eoH67ACDEBw/pub?start=false&loop=false&delayms=3000).
