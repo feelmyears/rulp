@@ -39,25 +39,35 @@ pub struct SimplexSolver {
 impl fmt::Display for Solution {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     	writeln!(f, "").unwrap();
-    	match self.objective {
-    		None => {
+        match self.status {
+            Status::Optimal => {
+                match self.objective {
+                    None => {
 
-    		},
-    		Some(ref obj) => {
-    			writeln!(f, "Objective: {:}", obj).unwrap();
-    		}
-    	}
-    	match self.values {
-    		None => {
+                    },
+                    Some(ref obj) => {
+                        writeln!(f, "Optimal objective: {:}", obj).unwrap();
+                    }
+                }
+                match self.values {
+                    None => {
 
-    		},
-    		Some(ref vals) => {
-    			for i in 0 .. vals.len() - self.lp.num_artificial_vars {
-    				writeln!(f, "{:}: {:?}", self.lp.vars[i],vals[i]).unwrap();
-    			}
-    		}
-    	}
+                    },
+                    Some(ref vals) => {
+                        for i in 0 .. vals.len() - self.lp.num_artificial_vars {
+                            writeln!(f, "{:}: {:?}", self.lp.vars[i],vals[i]).unwrap();
+                        }
+                    }
+                }
+            },  
+            Status::Infeasible => {
+                writeln!(f, "Infeasible").unwrap();
+            },
+            Status::Unbounded => {
+                writeln!(f, "Unbounded").unwrap();
+            }
+        }
 
-    	write!(f, "")
+        write!(f, "")
     }
 }

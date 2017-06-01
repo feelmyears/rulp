@@ -132,7 +132,7 @@ fn infeasible_file_test() {
 
 	let solver = SimplexSolver::new(lp);
 	let solution = solver.solve();
-
+	
 	assert_eq!(solution.objective, None);
 	assert_eq!(solution.values, None);
 	assert_eq!(solution.status, Status::Infeasible);
