@@ -25,7 +25,6 @@ extern crate rulinalg;
 ```
 Then import the modules and you're done!
 ```
-#[test]
 fn minimize_text_test() {
 	let text_problem = "	
 		# Radiation Example;
