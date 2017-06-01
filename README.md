@@ -1,6 +1,6 @@
 # rulp
 The crate is currently on version 0.1.0
-Read the API Documentation to learn more.
+Read the [API Documentation](https://ajm012.github.io/rulp/) to learn more.
 
 ## Summary
 Rulp is a linear programming library written in Rust.
