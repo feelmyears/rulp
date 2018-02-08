@@ -3,6 +3,7 @@ name = "rulp"
 version = "0.1.0"
 authors = ["feelmyears <philipmeyers2017@u.northwestern.edu>", "ajm012 <andrewmcconnell2016@u.northwestern.edu>"]
 description = "A library providing functionality to parse, create and solve linear programming problems."
+repository = "https://github.com/feelmyears/rulp"
 license = "MIT"
 keywords = ["linear-program","linear-programming","tableau","simplex"]
 readme = "README.md"
